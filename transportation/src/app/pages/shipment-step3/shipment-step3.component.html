@@ -1,0 +1,45 @@
+<div class="form-container">
+  <div class="progress-container">
+    <ng-container *ngFor="let step of steps; let i = index">
+      <div class="step" [class.active]="i <= currentStep">
+        <div class="circle">{{ i + 1 }}</div>
+        <div class="label">{{ step.label }}</div>
+      </div>
+      <div *ngIf="i < steps.length - 1" class="line" [class.active]="i < currentStep"></div>
+    </ng-container>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onConfirm()" novalidate>
+    <div class="form-group">
+      <label class="input-title">
+        <i class="fa fa-info-circle"></i> Shipment Summary
+      </label>
+      <div class="summary-box">
+        <p><strong>Pickup:</strong> {{ shipmentSummary?.pickupLocation }}</p>
+        <p><strong>Dropoff:</strong> {{ shipmentSummary?.dropoffLocation }}</p>
+        <p><strong>Weight:</strong> {{ shipmentSummary?.weight }} kg</p>
+        <p><strong>Distance:</strong> {{ shipmentSummary?.distance }} km</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="input-title">
+        <i class="fa fa-money-bill-wave"></i> Estimated Price
+      </label>
+      <input type="text" class="form-control" [value]="estimatedPrice | number:'1.2-2'" readonly />
+    </div>
+
+    <div class="form-group">
+      <label class="input-title">
+        <i class="fa fa-edit"></i> Propose Your Own Price (Optional)
+      </label>
+      <input type="number" formControlName="customQuote" class="form-control" placeholder="Enter your price" />
+    </div>
+
+    <p class="confirm-text">
+      Please confirm your shipment to start receiving transportation requests.
+    </p>
+
+    <button type="submit" class="next-button">Confirm and Publish</button>
+  </form>
+</div>

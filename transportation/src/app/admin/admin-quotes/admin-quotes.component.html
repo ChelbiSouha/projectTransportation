@@ -1,0 +1,15 @@
+<div class="p-4">
+  <h2 class="text-xl font-bold mb-4">💰 Quotes Overview</h2>
+
+  <div *ngFor="let quote of quotes" class="border rounded-xl p-4 mb-4 shadow bg-white">
+    <p><strong>📦 Shipment:</strong> {{ quote.shipment.title }}</p>
+    <p><strong>🚚 Transporter:</strong> {{ quote.transporter.user.username }}</p>
+    <p><strong>💵 Price:</strong> {{ quote.price }} TND</p>
+    <p><strong>🗓️ Date:</strong> {{ quote.date | date:'short' }}</p>
+
+    <div class="text-sm text-gray-500 mt-2">
+      <p>Client Approved: {{ quote.clientApproved ? '✅' : '❌' }}</p>
+      <p>Transporter Approved: {{ quote.transporterApproved ? '✅' : '❌' }}</p>
+    </div>
+  </div>
+</div>

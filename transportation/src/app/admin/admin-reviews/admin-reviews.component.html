@@ -1,0 +1,17 @@
+<div class="p-4">
+  <h2 class="text-xl font-bold mb-4">💬 Transporter Reviews</h2>
+
+  <div *ngFor="let review of reviews" class="border rounded-xl p-4 mb-4 shadow bg-white">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold">
+          {{ review.user.username }} → {{ review.transporter.user.username }}
+        </p>
+        <p class="text-yellow-500">Rating: {{ review.rating }}/5</p>
+        <p class="text-gray-700 mt-1">{{ review.comment }}</p>
+        <p class="text-sm text-gray-400">{{ review.date | date:'medium' }}</p>
+      </div>
+      <button (click)="deleteReview(review.id!)" class="text-red-600 underline">Delete</button>
+    </div>
+  </div>
+</div>

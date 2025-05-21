@@ -1,0 +1,29 @@
+<div class="container p-4 max-w-xl mx-auto">
+  <h2 class="text-xl font-bold text-blue-600 mb-4">Leave a Review</h2>
+
+  <div *ngIf="shipments.length === 0" class="text-gray-500">
+    You have no shipments ready for review.
+  </div>
+
+  <div *ngFor="let shipment of shipments" class="mb-4 border p-3 rounded shadow">
+    <h3 class="text-lg font-semibold">{{ shipment.title }}</h3>
+    <p class="text-sm text-gray-600">Delivered to: {{ shipment.dropoffLocation }}</p>
+    <button class="btn btn-primary mt-2" (click)="selectShipment(shipment)">Review</button>
+  </div>
+
+  <div *ngIf="selectedShipment" class="mt-6">
+    <h3 class="text-lg font-semibold mb-2">
+      Review for {{ selectedShipment?.confirmedTransporter?.user?.username || 'Unknown' }}
+    </h3>
+
+    <label class="block text-sm font-medium text-blue-700">Rating (1-5)</label>
+    <input type="number" [(ngModel)]="review.rating" min="1" max="5" class="form-input mb-2 w-full" />
+
+    <label class="block text-sm font-medium text-blue-700">Comment</label>
+    <textarea [(ngModel)]="review.comment" rows="4" class="form-textarea w-full mb-4"></textarea>
+
+    <button class="btn btn-success" (click)="submitReview()" [disabled]="submitting">
+      Submit Review
+    </button>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="shipment-list">
+  <h2 class="list-title">All Published Shipments</h2>
+
+  <div *ngIf="isLoading" class="loading">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!isLoading && shipments.length === 0" class="no-shipments">
+    No shipments found.
+  </div>
+
+  <div *ngIf="!isLoading && shipments.length > 0" class="shipment-cards">
+    <div *ngFor="let shipment of shipments" class="shipment-card">
+      <p><strong>From:</strong> {{ shipment.pickupLocation }}</p>
+      <p><strong>To:</strong> {{ shipment.dropoffLocation }}</p>
+      <p><strong>Weight:</strong> {{ shipment.weight }} kg</p>
+      <p><strong>Price:</strong> {{ shipment.price }} TND</p>
+
+      <!-- View Details Button -->
+      <button (click)="openModal(shipment)" class="view-details-btn">View Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Shipment Details -->
+<div *ngIf="selectedShipment" class="modal">
+  <div class="modal-content">
+    <span (click)="closeModal()" class="close-btn">&times;</span>
+    <h3>Shipment Details</h3>
+    <p><strong>From:</strong> {{ selectedShipment.pickupLocation }}</p>
+    <p><strong>To:</strong> {{ selectedShipment.dropoffLocation }}</p>
+    <p><strong>Weight:</strong> {{ selectedShipment.weight }} kg</p>
+    <p><strong>Price:</strong> {{ selectedShipment.price }} TND</p>
+    <p><strong>Status:</strong> {{ selectedShipment.status }}</p>
+    <p><strong>Receiver Phone:</strong> {{ selectedShipment.receiverPhone }}</p>
+    <p><strong>Type:</strong> {{ selectedShipment.type }}</p>
+    <p *ngIf="selectedShipment.distance"><strong>Distance:</strong> {{ selectedShipment.distance }} km</p>
+
+    <div *ngIf="selectedShipment.images && selectedShipment.images.length > 0" class="image-section">
+      <strong>Images:</strong>
+      <div class="image-gallery">
+        <img *ngFor="let image of selectedShipment.images" [src]="image" alt="Shipment Image" class="shipment-image"/>
+      </div>
+    </div>
+
+    <div *ngIf="selectedShipment.description" class="description">
+      <strong>Description:</strong>
+      <p>{{ selectedShipment.description }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+.home-container {
+  padding: 20px;
+  text-align: center;
+}
+#features {
+  position: relative;
+  min-height: 100vh;
+}
+
+.lottie-bg {
+  position: absolute;
+  top: -50px; /* Shifts it up */
+  left: 0;
+  width: 100%;
+  height: 110%; /* Slightly taller to cover */
+  z-index: 1;
+  pointer-events: none;
+  opacity: 1; /* Fully visible */
+  overflow: hidden;
+}
+
+
+/* Hero Section */
+
+
+
+/* Featured Services */
+.featured-services h2,
+.how-it-works h2,
+.testimonials h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.services-list {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.service-item {
+  width: 250px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+/* How It Works */
+/* How It Works Section */
+.how-it-works {
+  background: #f9f9f9; /* Gradient Background */
+  padding: 50px 0;
+  color: white;
+  border-radius: 10px;
+}
+
+.how-it-works h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.step {
+  width: 30%;
+  padding: 25px;
+  background: #ffffff;
+  color: #007bff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+  text-align: center;
+}
+
+.step h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.step p {
+  font-size: 16px;
+}
+
+/* Add icon to each step */
+.step .step-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+  color: #007bff;
+}
+

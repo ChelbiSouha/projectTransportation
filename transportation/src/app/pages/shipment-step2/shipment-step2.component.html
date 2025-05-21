@@ -1,0 +1,31 @@
+<div class="progress-container">
+  <ng-container *ngFor="let step of steps; let i = index">
+    <div class="step" [class.active]="i <= currentStep">
+      <div class="circle">{{ i + 1 }}</div>
+      <div class="label">{{ step.label }}</div>
+    </div>
+    <div *ngIf="i < steps.length - 1" class="line" [class.active]="i < currentStep"></div>
+  </ng-container>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onNext()" class="form-container">
+  <!-- Pickup -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-map-marker-alt"></i> Lieu de départ</label>
+    <input type="text" formControlName="pickupLocation" class="form-control" readonly />
+    <div id="pickupMap" class="map"></div>
+  </div>
+
+  <!-- Dropoff -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-map-marker-alt"></i> Lieu d'arrivée</label>
+    <input type="text" formControlName="dropoffLocation" class="form-control" readonly />
+    <div id="dropoffMap" class="map"></div>
+  </div>
+
+  <div *ngIf="pickupCoords && dropoffCoords" class="distance-box">
+    <i class="fa fa-road"></i> Distance estimée : {{ calculatedDistance }} km
+  </div>
+
+  <button type="submit" class="next-button">Continuer</button>
+</form>

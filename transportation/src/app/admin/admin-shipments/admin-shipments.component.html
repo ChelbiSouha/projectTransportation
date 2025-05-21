@@ -1,0 +1,82 @@
+<div class="p-6">
+  <h2 class="text-xl font-bold mb-4">📦 Shipment Management</h2>
+
+  <!-- Filter -->
+  <div class="mb-4">
+    <label class="font-medium mr-2">Filter by Status:</label>
+    <select [(ngModel)]="selectedStatus" class="border rounded px-2 py-1">
+      <option value="">All</option>
+      <option value="Pending">Pending</option>
+      <option value="In Transit">In Transit</option>
+      <option value="Delivered">Delivered</option>
+    </select>
+  </div>
+  <p class="text-red-600" *ngIf="filteredShipments().length === 0">No shipments found for this filter.</p>
+
+  <!-- Shipment list -->
+  <div class="flex flex-col gap-6">
+    <div *ngFor="let shipment of filteredShipments()" class="border p-4 bg-white rounded-xl shadow">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm text-gray-600">From: {{ shipment.pickupLocation }}</p>
+          <p class="text-sm text-gray-600">To: {{ shipment.dropoffLocation }}</p>
+          <p class="text-sm text-gray-600">Status: <span class="font-medium">{{ shipment.status }}</span></p>
+        </div>
+        <div class="flex flex-col items-end gap-1">
+          <button (click)="viewDetails(shipment)" class="text-blue-600 underline text-sm">Details</button>
+          <button (click)="editShipment(shipment)" class="text-green-600 underline text-sm">Edit</button>
+          <button (click)="deleteShipment(shipment.id!)" class="text-red-600 underline text-sm">Delete</button>
+        </div>
+      </div>
+
+      <!-- Shipment Details -->
+      <div *ngIf="selectedShipment?.id === shipment.id && showDetails" class="mt-3 text-sm text-gray-700 space-y-1">
+        <p><strong>Description:</strong> {{ shipment.description }}</p>
+        <p><strong>User ID:</strong> {{ shipment.user.id }}</p>
+        <p><strong>Receiver Phone:</strong> {{ shipment.receiverPhone }}</p>
+        <p><strong>Type:</strong> {{ shipment.type }}</p>
+        <p><strong>Weight:</strong> {{ shipment.weight }} kg</p>
+        <p><strong>Confirmed Transporter:</strong> {{ shipment.confirmedTransporter?.user?.username  || 'N/A' }}</p>
+        <p><strong>Images:</strong></p>
+        <div class="flex gap-2 flex-wrap">
+          <img *ngFor="let img of shipment.images" [src]="img" alt="Shipment Image" class="w-20 h-20 object-cover rounded border" />
+        </div>
+      </div>
+
+      <!-- Edit Form -->
+      <!-- Edit Form -->
+      <div *ngIf="selectedShipment && selectedShipment.id === shipment.id && showEditForm" class="mt-4">
+        <form (ngSubmit)="saveShipment()">
+          <div class="mb-2">
+            <label class="block text-sm font-medium">Description</label>
+            <input [(ngModel)]="selectedShipment.description" name="description" class="border w-full rounded px-2 py-1" />
+          </div>
+          <div class="mb-2">
+            <label class="block text-sm font-medium">Status</label>
+            <select [(ngModel)]="selectedShipment.status" name="status" class="border rounded w-full px-2 py-1">
+              <option value="Pending">Pending</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="block text-sm font-medium">Receiver Phone</label>
+            <input [(ngModel)]="selectedShipment.receiverPhone" name="receiverPhone" class="border w-full rounded px-2 py-1" />
+          </div>
+          <div class="mb-2">
+            <label class="block text-sm font-medium">Type</label>
+            <input [(ngModel)]="selectedShipment.type" name="type" class="border w-full rounded px-2 py-1" />
+          </div>
+          <div class="mb-2">
+            <label class="block text-sm font-medium">Weight (kg)</label>
+            <input type="number" [(ngModel)]="selectedShipment.weight" name="weight" class="border w-full rounded px-2 py-1" />
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded">Save</button>
+            <button type="button" (click)="cancelEdit()" class="text-gray-600 underline">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

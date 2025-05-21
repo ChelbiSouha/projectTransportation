@@ -1,0 +1,139 @@
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 bg-gradient-to-b from-indigo-700 to-blue-700 text-white p-4">
+    <h2 class="text-2xl font-bold text-purple-200 mb-8 text-center">Transporter Dashboard</h2>
+    <ul class="space-y-4">
+      <li>
+        <a routerLink="/dashboard-transporter"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('dashboard')}"
+           (click)="setActive('dashboard')">
+          <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-shipments"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('activeShipments')}"
+           (click)="setActive('activeShipments')">
+          <i class="fas fa-truck mr-2"></i> Active Shipments
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-reviews"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('pendingShipments')}"
+           (click)="setActive('pendingShipments')">
+          <i class="fas fa-hourglass-half mr-2"></i> Reviews
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-profile"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('profile')}"
+           (click)="setActive('profile')">
+          <i class="fas fa-user mr-2"></i> Profile
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-6">
+    <!-- Welcome Bar (always at the top of content) -->
+    <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
+      <div>
+        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter.user.username }}!</h3>
+        <p class="text-sm text-blue-100">Manage your profile and vehicle details here.</p>
+      </div>
+      <div class="flex items-center space-x-6">
+        <!-- Notifications -->
+        <div class="relative">
+          <button (click)="toggleNotifications()" class="text-white">
+            <i class="fas fa-bell text-3xl"></i>
+            <span *ngIf="notifications.length"
+                  class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+              {{ notifications.length }}
+            </span>
+          </button>
+          <div *ngIf="showNotifications" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div *ngFor="let notification of notifications" class="p-2 border-b last:border-b-0">
+              <p class="text-sm">{{ notification.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative">
+          <button (click)="toggleProfile()" class="text-white">
+            <i class="fas fa-user-circle text-3xl"></i>
+          </button>
+          <div *ngIf="showProfile" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ transporter.user.username }}</p>
+              <p class="text-sm">{{ transporter.user.email }}</p>
+            </div>
+            <div class="p-2">
+              <button (click)="logout()"
+                      class="w-full text-left text-blue-600 hover:bg-gray-200 px-4 py-2 rounded-md">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="bg-white p-6 rounded-xl shadow max-w-7xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">🚚 Profile Management</h2>
+
+      <form (ngSubmit)="updateProfile()" #profileForm="ngForm">
+        <!-- Personal Information -->
+        <div class="space-y-4 mb-6">
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <label for="name" class="block text-gray-700">Full Name</label>
+              <input id="name" name="name" [(ngModel)]="transporter.user.username" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+            <div class="w-1/2">
+              <label for="email" class="block text-gray-700">Email</label>
+              <input id="email" name="email" [(ngModel)]="transporter.user.email" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Information -->
+        <div class="space-y-4 mb-6">
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <label for="vehicleType" class="block text-gray-700">Vehicle Type</label>
+              <input id="vehicleType" name="vehicleType" [(ngModel)]="vehicleInfo.type" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+            <div class="w-1/2">
+              <label for="vehiclePlate" class="block text-gray-700">Vehicle Plate</label>
+              <input id="vehiclePlate" name="vehiclePlate" [(ngModel)]="vehicleInfo.plate" class="w-full px-4 py-2 border rounded-md" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Document Uploads -->
+        <div class="space-y-4 mb-6">
+          <div class="flex flex-col">
+            <label for="license" class="block text-gray-700">Upload Driver’s License</label>
+            <input type="file" id="license" name="license" (change)="onFileSelect($event)" class="mt-2" />
+          </div>
+          <div class="flex flex-col">
+            <label for="vehicleRegistration" class="block text-gray-700">Upload Vehicle Registration</label>
+            <input type="file" id="vehicleRegistration" name="vehicleRegistration" (change)="onFileSelect($event)" class="mt-2" />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+          <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700">Update Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

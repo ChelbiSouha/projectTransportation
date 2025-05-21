@@ -1,0 +1,156 @@
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 bg-gradient-to-b from-indigo-700 to-blue-700 text-white p-4">
+    <h2 class="text-2xl font-bold text-purple-200 mb-8 text-center">Transporter Dashboard</h2>
+    <ul class="space-y-4">
+      <li>
+        <a routerLink="/dashboard-transporter"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('dashboard')}"
+           (click)="setActive('dashboard')">
+          <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-shipments"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('activeShipments')}"
+           (click)="setActive('activeShipments')">
+          <i class="fas fa-truck mr-2"></i> Active Shipments
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-reviews"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('pendingShipments')}"
+           (click)="setActive('pendingShipments')">
+          <i class="fas fa-hourglass-half mr-2"></i> Reviews
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-profile"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('profile')}"
+           (click)="setActive('profile')">
+          <i class="fas fa-user mr-2"></i> Profile
+        </a>
+      </li>
+    </ul>
+  </div>
+  <!-- Main Content -->
+  <div class="flex-1 p-6">
+    <!-- Welcome Bar (always at the top of content) -->
+    <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
+      <div>
+        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter.name }}!</h3>
+        <p class="text-sm text-blue-100">Ready to manage your shipments today?</p>
+      </div>
+      <div class="flex items-center space-x-6">
+        <!-- Notifications -->
+        <div class="relative">
+          <button (click)="toggleNotifications()" class="text-white">
+            <i class="fas fa-bell text-3xl"></i>
+            <span *ngIf="notifications.length"
+                  class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+              {{ notifications.length }}
+            </span>
+          </button>
+          <div *ngIf="showNotifications" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div *ngFor="let notification of notifications" class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ notification.title }}</p>
+              <p class="text-sm">{{ notification.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative">
+          <button (click)="toggleProfile()" class="text-white">
+            <i class="fas fa-user-circle text-3xl"></i>
+          </button>
+          <div *ngIf="showProfile" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ transporter.name }}</p>
+              <p class="text-sm">{{ transporter.email }}</p>
+            </div>
+            <div class="p-2">
+              <button (click)="logout()"
+                      class="w-full text-left text-blue-600 hover:bg-gray-200 px-4 py-2 rounded-md">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<!--centent -->
+      <div class="bg-white p-6 rounded-xl shadow max-w-7xl mx-auto">
+     <h2 class="text-2xl font-bold mb-6 text-gray-800">📦 Shipment Management</h2>
+
+  <div *ngIf="shipments.length; else noShipments" class="space-y-4">
+    <div *ngFor="let shipment of shipments" class="border rounded-lg p-4 shadow-sm">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700">{{ shipment.title }}</h3>
+          <p class="text-sm text-gray-500">From: {{ shipment.pickupLocation }} → To: {{ shipment.dropoffLocation }}</p>
+          <p class="text-sm text-gray-500">Status:
+            <span class="font-semibold" [ngClass]="{
+          'text-yellow-500': shipment.status === 'pending',
+          'text-green-500': shipment.status === 'accepted',
+          'text-blue-500': shipment.status === 'in-progress',
+          'text-red-500': shipment.status === 'rejected'
+        }">{{ shipment.status }}</span>
+          </p>
+          <p class="text-sm text-indigo-600 font-medium mt-1">
+            💰 Suggested Quote: <span class="font-bold">{{ shipment.suggestedPrice }} TND</span>
+          </p>
+
+          <!-- Editable Proposed Price -->
+          <div *ngIf="shipment.showPropose" class="mt-2">
+            <input type="number"
+                   [(ngModel)]="shipment.proposedPrice"
+                   class="border px-2 py-1 rounded-md w-32 mr-2" />
+            <button (click)="submitQuote(shipment)"
+                    class="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-sm">
+              Submit Quote
+            </button>
+            <button (click)="shipment.showPropose = false"
+                    class="text-sm text-red-500 ml-2">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-2">
+          <button *ngIf="shipment.status === 'pending'" (click)="shipment.showPropose = true"
+                  class="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700">
+            Propose Quote
+          </button>
+
+          <button *ngIf="shipment.status === 'pending'" (click)="acceptShipment(shipment.id)"
+                  class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm">
+            Accept
+          </button>
+
+          <button *ngIf="shipment.status === 'pending'" (click)="rejectShipment(shipment.id)"
+                  class="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 transition">
+            Reject
+          </button>
+
+          <button *ngIf="shipment.status !== 'pending'" (click)="trackShipment(shipment.id)"
+                  class="bg-indigo-500 text-white px-4 py-2 rounded-md text-sm">
+            Track
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <ng-template #noShipments>
+    <p class="text-gray-500">No shipments assigned to you yet.</p>
+  </ng-template>
+</div>
+  </div>
+</div>

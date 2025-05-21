@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <!-- Font Awesome for icons -->
+</head>
+<body class="bg-gray-100">
+
+<!-- login.component.html -->
+<div class="d-flex h-screen">
+  <!-- Left Side: Truck Image -->
+  <div class="w-1/2 relative">
+    <img src="/assets/images/login.jpg" alt="Truck Image" class="object-cover w-full h-full brightness-110">
+  </div>
+
+  <!-- Right Side: Login Form -->
+  <div class="w-1/2 flex flex-col justify-center items-center bg-white p-8 space-y-6 shadow-xl rounded-lg">
+    <h2 class="text-4xl font-semibold text-blue-600 mb-6">Login</h2>
+
+    <!-- Login Form -->
+    <form class="w-full max-w-sm space-y-6" (ngSubmit)="login()" #loginForm="ngForm">
+      <!-- Username Field -->
+      <div class="form-group mb-6">
+        <div class="flex items-center space-x-2 mb-2">
+          <i class="fas fa-user text-blue-600 text-xl"></i>
+          <label for="username" class="text-gray-700 font-medium">Username</label>
+        </div>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          required
+          [(ngModel)]="username"
+          class="form-control py-3 px-4 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter your username">
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group mb-6">
+        <div class="flex items-center space-x-2 mb-2">
+          <i class="fas fa-lock text-blue-600 text-xl"></i>
+          <label for="password" class="text-gray-700 font-medium">Password</label>
+        </div>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          [(ngModel)]="password"
+          class="form-control py-3 px-4 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter your password">
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="text-red-600 text-sm text-center">
+        {{ error }}
+      </div>
+
+      <!-- Login Button -->
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-md text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
+
+      <!-- Sign Up Link -->
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          Don't have an account?
+          <a routerLink="/signup" class="text-blue-600 font-semibold">Sign Up</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

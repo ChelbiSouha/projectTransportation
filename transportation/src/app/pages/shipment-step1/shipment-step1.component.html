@@ -1,0 +1,53 @@
+<div class="progress-container">
+  <ng-container *ngFor="let step of steps; let i = index">
+    <div class="step" [class.active]="i <= currentStep">
+      <div class="circle">{{ i + 1 }}</div>
+      <div class="label">{{ step.label }}</div>
+    </div>
+    <div *ngIf="i < steps.length - 1" class="line" [class.active]="i < currentStep"></div>
+  </ng-container>
+</div>
+
+<form [formGroup]="form" class="form-container" (ngSubmit)="onNext()" novalidate>
+
+  <!-- Upload d’images stylisé -->
+  <div class="form-group photo-upload">
+    <label for="images" class="photo-label">
+      <div class="photo-box">
+        <img src="assets/images/Image.png" alt="Upload Icon" class="photo-icon" />
+        <span>Ajouter des photos</span>
+      </div>
+    </label>
+    <input id="images" type="file" multiple accept="image/*" (change)="onImageChange($event)" style="display: none;" />
+    <p class="photo-info">Jusqu'à 7 photos, format JPG, PNG jusqu'à 7MB.</p>
+    <div class="image-preview">
+      <img *ngFor="let img of imagePreviews" [src]="img" />
+    </div>
+  </div>
+
+  <!-- Type -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-box"></i> Type</label>
+    <input type="text" formControlName="type" class="form-control" />
+  </div>
+
+  <!-- Weight -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-weight"></i> Poids (kg)</label>
+    <input type="number" formControlName="weight" class="form-control" />
+  </div>
+
+  <!-- Receiver Phone -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-phone"></i> Téléphone du destinataire</label>
+    <input type="text" formControlName="receiverPhone" class="form-control" placeholder="e.g. 50123456" />
+  </div>
+
+  <!-- Description -->
+  <div class="form-group">
+    <label class="input-title"><i class="fa fa-align-left"></i> Description</label>
+    <textarea formControlName="description" rows="4" class="form-control"></textarea>
+  </div>
+
+  <button type="submit" class="next-button">Continuer</button>
+</form>

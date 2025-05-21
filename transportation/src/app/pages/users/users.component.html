@@ -1,0 +1,85 @@
+<div class="user-dashboard">
+  <!-- Welcome Bar -->
+  <div class="user-greeting-bar compact">
+    <div class="greeting-text">
+      <h1><span class="colored-title">Welcome,</span> {{ user.name }} 👋</h1>
+      <p>Here’s what’s happening with your shipments</p>
+    </div>
+    <div class="user-icons">
+      <i class="fas fa-bell"></i>
+      <i class="fas fa-user-circle"></i>
+    </div>
+  </div>
+
+  <main class="dashboard-main">
+    <!-- Shipment Overview -->
+    <section class="shipment-overview">
+      <h2 class="section-title">📦 Shipment Overview</h2>
+      <div class="stats">
+        <div class="stat-card fancy-card">
+          <i class="fas fa-truck-moving icon"></i>
+          <div>
+            <h4>Active</h4>
+            <p>{{ activeShipmentsCount }}</p>
+          </div>
+        </div>
+        <div class="stat-card fancy-card">
+          <i class="fas fa-archive icon"></i>
+          <div>
+            <h4>Past</h4>
+            <p>{{ pastShipmentsCount }}</p>
+          </div>
+        </div>
+        <div class="stat-card fancy-card">
+          <i class="fas fa-hourglass-half icon"></i>
+          <div>
+            <h4>Pending</h4>
+            <p>{{ pendingShipmentsCount }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- Quick Actions -->
+    <section class="quick-actions">
+      <button (click)="goToShipmentPage()">➕ Add New Shipment</button>
+      <button (click)="trackShipment()">📍 Track Shipment</button>
+    </section>
+
+    <!-- Shipment Table -->
+    <section class="shipment-table">
+      <h2 class="section-title">🚚 Your Shipments</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+          <tr>
+            <th>#ID</th>
+            <th>Pickup</th>
+            <th>Drop-off</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let shipment of shipments">
+            <td>{{ shipment.id }}</td>
+            <td>{{ shipment.pickupLocation }}</td>
+            <td>{{ shipment.dropoffLocation }}</td>
+            <td>{{ shipment.date | date }}</td>
+            <td>
+              <span class="status-badge {{ shipment.status | lowercase }}">
+                {{ shipment.status }}
+              </span>
+            </td>
+            <td>
+              <button (click)="viewShipmentDetails(shipment.id)">👁️ View</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>

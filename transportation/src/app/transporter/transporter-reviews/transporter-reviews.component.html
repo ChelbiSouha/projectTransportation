@@ -1,0 +1,125 @@
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 bg-gradient-to-b from-indigo-700 to-blue-700 text-white p-4">
+    <h2 class="text-2xl font-bold text-purple-200 mb-8 text-center">Transporter Dashboard</h2>
+    <ul class="space-y-4">
+      <li>
+        <a routerLink="/dashboard-transporter"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('dashboard')}"
+           (click)="setActive('dashboard')">
+          <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-shipments"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('activeShipments')}"
+           (click)="setActive('activeShipments')">
+          <i class="fas fa-truck mr-2"></i> Active Shipments
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-reviews"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('reviews')}"
+           (click)="setActive('reviews')">
+          <i class="fas fa-star mr-2"></i> Reviews
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/transporter-profile"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('profile')}"
+           (click)="setActive('profile')">
+          <i class="fas fa-user mr-2"></i> Profile
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-6">
+    <!-- Welcome Bar (always at the top of content) -->
+    <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
+      <div>
+        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter.user.username }}!</h3>
+        <p class="text-sm text-blue-100">Ready to manage your shipments today?</p>
+      </div>
+      <div class="flex items-center space-x-6">
+        <!-- Notifications -->
+        <div class="relative">
+          <button (click)="toggleNotifications()" class="text-white">
+            <i class="fas fa-bell text-3xl"></i>
+            <span *ngIf="notifications.length"
+                  class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+              {{ notifications.length }}
+            </span>
+          </button>
+          <div *ngIf="showNotifications" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div *ngFor="let notification of notifications" class="p-2 border-b last:border-b-0">
+              <p class="text-sm">{{ notification.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative">
+          <button (click)="toggleProfile()" class="text-white">
+            <i class="fas fa-user-circle text-3xl"></i>
+          </button>
+          <div *ngIf="showProfile" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ transporter.user.username }}</p>
+              <p class="text-sm">{{ transporter.user.email }}</p>
+            </div>
+            <div class="p-2">
+              <button (click)="logout()"
+                      class="w-full text-left text-blue-600 hover:bg-gray-200 px-4 py-2 rounded-md">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="bg-white p-6 rounded-xl shadow max-w-7xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">⭐ Reviews & Feedback</h2>
+
+      <div *ngIf="reviews.length; else noReviews" class="space-y-4">
+        <div *ngFor="let review of reviews" class="border rounded-lg p-4 shadow-sm">
+          <div class="flex justify-between items-center">
+            <div>
+             <!-- <h3 class="text-lg font-semibold text-gray-700">{{ review.shipmentTitle }}</h3>-->
+              <p class="text-sm text-gray-500">Client: {{ review.user.username }}</p>
+              <p class="text-sm text-gray-500">Rating:
+                <span class="font-semibold text-yellow-500">{{ review.rating }} / 5</span>
+              </p>
+              <p class="text-sm text-gray-500">Review: {{ review.comment }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noReviews>
+        <p class="text-gray-500">No reviews yet for your shipments.</p>
+      </ng-template>
+
+      <div class="overall-rating">
+        <h2>Overall Rating: {{ overallRating }} ⭐</h2>
+      </div>
+
+      <div class="reviews-list">
+        <div *ngFor="let review of reviews" class="review-item">
+          <h3>{{ review.user.username || 'Anonymous' }}</h3>
+          <p>Rating: {{ review.rating }} ⭐</p>
+          <p>{{ review.comment }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

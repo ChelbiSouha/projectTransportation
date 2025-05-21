@@ -1,0 +1,120 @@
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 bg-gradient-to-b from-indigo-700 to-blue-700 text-white p-4">
+    <h2 class="text-2xl font-bold text-purple-200 mb-8 text-center">Transporter Dashboard</h2>
+    <ul class="space-y-4">
+      <li>
+        <a routerLink="/dashboard-transporter"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('dashboard')}"
+           (click)="setActive('dashboard')">
+          <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-shipments"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('activeShipments')}"
+           (click)="setActive('activeShipments')">
+          <i class="fas fa-truck mr-2"></i> Active Shipments
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-reviews"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('pendingShipments')}"
+           (click)="setActive('pendingShipments')">
+          <i class="fas fa-hourglass-half mr-2"></i> Reviews
+        </a>
+      </li>
+      <li>
+        <a routerLink="/transporter-profile"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('profile')}"
+           (click)="setActive('profile')">
+          <i class="fas fa-user mr-2"></i> Profile
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-6">
+    <!-- Welcome Bar (always at the top of content) -->
+    <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
+      <div>
+        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter.name }}!</h3>
+        <p class="text-sm text-blue-100">Ready to manage your shipments today?</p>
+      </div>
+      <div class="flex items-center space-x-6">
+        <!-- Notifications -->
+        <div class="relative">
+          <button (click)="toggleNotifications()" class="text-white">
+            <i class="fas fa-bell text-3xl"></i>
+            <span *ngIf="notifications.length"
+                  class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+              {{ notifications.length }}
+            </span>
+          </button>
+          <div *ngIf="showNotifications" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div *ngFor="let notification of notifications" class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ notification.title }}</p>
+              <p class="text-sm">{{ notification.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative">
+          <button (click)="toggleProfile()" class="text-white">
+            <i class="fas fa-user-circle text-3xl"></i>
+          </button>
+          <div *ngIf="showProfile" class="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg w-64 p-2 z-10">
+            <div class="p-2 border-b last:border-b-0">
+              <p class="font-bold">{{ transporter.name }}</p>
+              <p class="text-sm">{{ transporter.email }}</p>
+            </div>
+            <div class="p-2">
+              <button (click)="logout()"
+                      class="w-full text-left text-blue-600 hover:bg-gray-200 px-4 py-2 rounded-md">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <p class="text-lg font-bold">🚚 Active Shipments</p>
+        <p class="text-2xl">{{ activeShipments }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <p class="text-lg font-bold">📦 Pending Shipments</p>
+        <p class="text-2xl">{{ pendingShipments }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <p class="text-lg font-bold">💬 Reviews</p>
+        <p class="text-2xl">{{ reviews }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <p class="text-lg font-bold">💰 Earnings</p>
+        <p class="text-2xl">{{ earnings }}</p>
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="bg-white p-4 rounded-xl shadow">
+      <h3 class="text-xl font-semibold mb-4">📝 Latest Feedback</h3>
+      <div *ngIf="latestFeedback">
+        <p><strong>{{ latestFeedback.userName }}:</strong> "{{ latestFeedback.comment }}"</p>
+        <p class="text-gray-500 text-sm">Rating: {{ latestFeedback.rating }}⭐</p>
+      </div>
+      <div *ngIf="!latestFeedback" class="text-gray-500">
+        No feedback yet.
+      </div>
+    </div>
+  </div>
+
+</div>

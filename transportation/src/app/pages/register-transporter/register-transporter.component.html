@@ -1,0 +1,71 @@
+<div class="register-container">
+  <!-- Left Side: Image -->
+  <div class="image-container">
+    <img src="/assets/images/truck-driver.png" alt="Transporter Registration">
+  </div>
+
+  <!-- Right Side: Form -->
+  <div class="register-form">
+    <h2 class="text-center">Transporter Registration</h2>
+
+    <form (ngSubmit)="registerTransporter()" #transporterForm="ngForm">
+      <!-- Personal Information -->
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="username"><i class="fas fa-user"></i> Full Name</label>
+          <input type="text" id="username" class="form-control" [(ngModel)]="transporter.username" name="username" required>
+
+        </div>
+        <div class="form-group half">
+          <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
+          <input type="text" id="phone" class="form-control" [(ngModel)]="transporter.phone" name="phone" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="email"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="email" class="form-control" [(ngModel)]="transporter.email" name="email" required>
+        </div>
+        <div class="form-group half">
+          <label for="password"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="password" class="form-control" [(ngModel)]="transporter.password" name="password" required>
+        </div>
+      </div>
+
+
+      <!-- Vehicle Information -->
+      <div class="form-group">
+        <label for="vehicleType"><i class="fas fa-truck"></i> Vehicle Type</label>
+        <select id="vehicleType" class="form-control" [(ngModel)]="transporter.vehicleType" name="vehicleType" required>
+          <option value="Truck">Truck</option>
+          <option value="Van">Van</option>
+          <option value="Motorcycle">Motorcycle</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="plateNumber"><i class="fas fa-car"></i> Plate Number</label>
+        <input type="text" id="plateNumber" class="form-control" [(ngModel)]="transporter.plateNumber" name="plateNumber" required>
+      </div>
+
+      <!-- Document Uploads -->
+      <div class="form-group">
+        <label><i class="fas fa-file-upload"></i> Upload License</label>
+        <input type="file" (change)="onFileSelected($event, 'license')" required>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-file-upload"></i> Upload Vehicle Registration</label>
+        <input type="file" (change)="onFileSelected($event, 'vehicleRegistration')" required>
+      </div>
+
+      <!-- Submit Button
+      <button type="submit" class="btn-submit">Register</button> -->
+      <button [disabled]="isLoading" class="btn btn-primary">
+        {{ isLoading ? 'Please wait...' : 'Register' }}
+      </button>
+
+    </form>
+  </div>
+</div>
