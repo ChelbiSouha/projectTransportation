@@ -1,6 +1,7 @@
 package com.example.transport.controller;
 
 import com.example.transport.entities.Transporter;
+import com.example.transport.repository.TransporterRepository;
 import com.example.transport.services.TransporterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,8 @@ public class TransporterController {
 
     @Autowired
     private TransporterService transporterService;
+    @Autowired
+    private TransporterRepository transporterRepository;
 
     // Ajouter un transporteur
     @PostMapping("/add")
@@ -58,4 +61,9 @@ public class TransporterController {
         }
         return ResponseEntity.notFound().build();
     }
+    @GetMapping("/pending")
+    public ResponseEntity<List<Transporter>> getPendingTransporters() {
+        return ResponseEntity.ok(transporterService.getPendingTransporters());
+    }
+
 }

@@ -10,4 +10,6 @@ public interface TransporterService {
     Transporter getTransporterById(Long id);
     Transporter updateTransporter(Long id, Transporter transporter);
     boolean deleteTransporter(Long id);
+    List<Transporter> getPendingTransporters();
+
 }

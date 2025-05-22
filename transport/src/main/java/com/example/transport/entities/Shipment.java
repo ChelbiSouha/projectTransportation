@@ -24,9 +24,9 @@ public class Shipment {
     private String receiverPhone;
     private Double weight;
     private String type;
-    private Double estimatedPrice;
     private Double proposedPrice;
-
+    @Column
+    private Double distance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -89,9 +89,6 @@ public class Shipment {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public Double getEstimatedPrice() { return estimatedPrice; }
-    public void setEstimatedPrice(Double estimatedPrice) { this.estimatedPrice = estimatedPrice; }
-
     public Double getProposedPrice() { return proposedPrice; }
     public void setProposedPrice(Double proposedPrice) { this.proposedPrice = proposedPrice; }
 
@@ -109,5 +106,12 @@ public class Shipment {
     public Transporter getConfirmedTransporter() { return confirmedTransporter; }
     public void setConfirmedTransporter(Transporter confirmedTransporter) {
         this.confirmedTransporter = confirmedTransporter;
+    }
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 }

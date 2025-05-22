@@ -57,4 +57,9 @@ public class TransporterServiceImpl implements TransporterService {
         }
         return false;
     }
+    @Override
+    public List<Transporter> getPendingTransporters() {
+        return transporterRepository.findByApprovedFalse();
+    }
+
 }
