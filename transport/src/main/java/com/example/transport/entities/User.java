@@ -1,6 +1,8 @@
 package com.example.transport.entities;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "users")
@@ -16,6 +18,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Transporter transporter;
 
 

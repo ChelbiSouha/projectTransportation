@@ -35,22 +35,38 @@ public class AdminDashboardController {
         return stats;
     }
     @PutMapping("/approve-transporter/{userId}")
-    public ResponseEntity<String> approveTransporter(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, String>> approveTransporter(@PathVariable Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent() && userOpt.get().getRole() == Role.TRANSPORTER) {
             Transporter transporter = userOpt.get().getTransporter();
             if (transporter != null) {
                 transporter.setApproved(true);
                 transporterRepository.save(transporter);
-                return ResponseEntity.ok("Transporter approved.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Transporter approved.");
+                return ResponseEntity.ok(response);
             }
+        }
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "User not found or not a transporter.");
+        return ResponseEntity.badRequest().body(error);
+    }
+    @DeleteMapping("/reject-transporter/{userId}")
+    public ResponseEntity<String> rejectTransporter(@PathVariable Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent() && userOpt.get().getRole() == Role.TRANSPORTER) {
+            Transporter transporter = userOpt.get().getTransporter();
+            if (transporter != null) {
+                transporterRepository.delete(transporter);
+            }
+            userRepository.delete(userOpt.get());
+            return ResponseEntity.ok("Transporter rejected and user deleted.");
         }
         return ResponseEntity.badRequest().body("User not found or not a transporter.");
     }
-    // Optional: Shipments per week data for bar chart
+
     @GetMapping("/shipments-per-week")
     public Map<String, Integer> getShipmentsPerWeek() {
-        // Replace this with actual logic based on date
         Map<String, Integer> data = new LinkedHashMap<>();
         data.put("Week 1", 5);
         data.put("Week 2", 10);
