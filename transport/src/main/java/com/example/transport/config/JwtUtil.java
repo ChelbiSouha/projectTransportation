@@ -13,6 +13,7 @@ public class JwtUtil {
     private final String SECRET_KEY = "secret123"; // à sécuriser en prod
 
     public String generateToken(String username) {
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
