@@ -11,8 +11,11 @@ export interface Shipment {
   receiverPhone: string;
   weight: number;
   type: string;
-  distance?: number;
+  proposedPrice: number;
+  createdAt?: string;
+  updatedAt?: string;
   images?: string[];
   user: User;
   confirmedTransporter?: Transporter;
+  distance?: number;
 }

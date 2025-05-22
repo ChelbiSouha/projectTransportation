@@ -56,7 +56,7 @@ export class ShipmentStep3Component implements OnInit {
 
     const shipment = {
       ...this.shipmentSummary,
-      price: quote,
+      proposedPrice: quote,
       status: 'Pending'
     };
     console.log('Sending to backend:', shipment);

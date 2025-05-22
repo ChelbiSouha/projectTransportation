@@ -15,4 +15,11 @@ private apiUrl = `${environment.apiBaseUrl}/admin-dashboard`;
     getShipmentsPerWeek(): Observable<{ [key: string]: number }> {
       return this.http.get<{ [key: string]: number }>(`${this.apiUrl}/shipments-per-week`);
     }
+  approveTransporter(userId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/approve-transporter/${userId}`, {});
+  }
+
+rejectTransporter(userId: number) {
+  return this.http.delete(`${this.apiUrl}/reject-transporter/${userId}`, { responseType: 'text' });
+}
 }
