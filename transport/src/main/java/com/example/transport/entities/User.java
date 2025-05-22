@@ -3,6 +3,7 @@ package com.example.transport.entities;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -13,26 +14,37 @@ public class User {
     private Long id;
 
     private String username;
+
     private String email;
-    private String password; // Le mot de passe est stocké (nous le crypterons plus tard)
+
+    private String password;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private Transporter transporter;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Shipment> shipments;
 
-    public User() {
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Review> reviews;
 
-    public User(String username, String email, String password,Role role) {
+    // Constructors
+    public User() {}
+
+    public User(String username, String email, String password, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
     }
 
-    // Getters et setters
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -64,6 +76,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
     public Role getRole() {
         return role;
     }
@@ -71,6 +84,7 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
     public Transporter getTransporter() {
         return transporter;
     }
@@ -79,4 +93,19 @@ public class User {
         this.transporter = transporter;
     }
 
+    public List<Shipment> getShipments() {
+        return shipments;
+    }
+
+    public void setShipments(List<Shipment> shipments) {
+        this.shipments = shipments;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -29,6 +31,9 @@ public class Transporter {
     private byte[] vehicleRegistrationImage;
     private String plateNumber;
     private boolean approved;
+
+    @OneToMany(mappedBy = "transporter")
+    private List<Quote> quotes;
 
     // Optional: constructor
     public Transporter() {
