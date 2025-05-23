@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
@@ -48,8 +49,19 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        AuthResponse response = new AuthResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name(),
+                jwt
+        );
+
+        return ResponseEntity.ok(response);
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {

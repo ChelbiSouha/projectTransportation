@@ -61,5 +61,10 @@ public class TransporterServiceImpl implements TransporterService {
     public List<Transporter> getPendingTransporters() {
         return transporterRepository.findByApprovedFalse();
     }
+    @Override
+    public Optional<Transporter> getTransporterByUserId(Long userId) {
+        return transporterRepository.findById(userId); // car Transporter et User partagent le même ID
+    }
+
 
 }

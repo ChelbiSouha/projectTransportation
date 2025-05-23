@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/transporters")
@@ -65,5 +67,12 @@ public class TransporterController {
     public ResponseEntity<List<Transporter>> getPendingTransporters() {
         return ResponseEntity.ok(transporterService.getPendingTransporters());
     }
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<Transporter> getTransporterByUserId(@PathVariable Long userId) {
+        Optional<Transporter> transporter = transporterService.getTransporterByUserId(userId);
+        return transporter.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+
 
 }
