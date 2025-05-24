@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ShipmentService } from '../../services/shipment.service';
 import { ShipmentRequestService } from '../../services/shipment-request.service';
 import { AuthService } from '../../services/auth-service.service';
+import { Shipment } from '../../models/shipment.model';
 import { ShipmentRequest } from '../../models/shipment-request.model';
+import { TransporterService } from '../../services/transporter.service';
 
 @Component({
   selector: 'app-shipment-list',
@@ -10,12 +12,12 @@ import { ShipmentRequest } from '../../models/shipment-request.model';
   styleUrls: ['./shipment-list.component.css']
 })
 export class ShipmentListComponent implements OnInit {
-  shipments: any[] = [];
+  shipments: Shipment[] = [];
   isLoading = true;
   error: string | null = null;
-
-  selectedShipment: any = null;
-  shipmentToPropose: any = null;
+  transporterId: number | null = null;
+  selectedShipment: Shipment | null = null;
+  shipmentToPropose: Shipment | null = null;
   proposedPrice: number = 0;
   proposalError: string | null = null;
   proposalSuccess: boolean = false;
@@ -24,12 +26,27 @@ export class ShipmentListComponent implements OnInit {
   constructor(
     private shipmentService: ShipmentService,
     private shipmentRequestService: ShipmentRequestService,
-    private authService: AuthService
+    private authService: AuthService,
+    private transporterService: TransporterService
   ) {}
 
   ngOnInit(): void {
-    this.fetchShipments();
-    this.fetchSentRequests();
+    this.authService.currentUser.subscribe(user => {
+      if (user?.id) {
+        this.transporterService.getTransporterById(user.id).subscribe({
+          next: (transporter) => {
+            this.transporterId = transporter.id;
+            this.fetchShipments();
+            this.fetchSentRequests();
+          },
+          error: () => {
+            console.error("L'utilisateur connecté n'est pas un transporteur.");
+          }
+        });
+      } else {
+        console.error("Utilisateur non connecté");
+      }
+    });
   }
 
   fetchShipments() {
@@ -38,7 +55,7 @@ export class ShipmentListComponent implements OnInit {
         this.shipments = data;
         this.isLoading = false;
       },
-      (err: any) => {
+      (err) => {
         this.error = 'Failed to load shipments.';
         this.isLoading = false;
       }
@@ -46,26 +63,19 @@ export class ShipmentListComponent implements OnInit {
   }
 
   fetchSentRequests() {
-    const transporterId = this.authService.getCurrentUserId();
-    if (transporterId !== null) {
-      this.shipmentRequestService.getRequestsByTransporter(transporterId).subscribe(
+    if (this.transporterId !== null) {
+      this.shipmentRequestService.getRequestsByTransporter(this.transporterId).subscribe(
         (requests) => {
-          for (let req of requests) {
-            this.requestedShipmentIds.add(req.shipment.id); // ✅ corrigé ici
-          }
+          requests.forEach((req) => this.requestedShipmentIds.add(req.shipment.id));
         },
-        (err: any) => {
-          console.error('Failed to load shipment requests:', err);
+        (error) => {
+          console.error('Failed to load sent requests.', error);
         }
       );
     }
   }
 
-  hasRequested(shipmentId: number): boolean {
-    return this.requestedShipmentIds.has(shipmentId);
-  }
-
-  openModal(shipment: any) {
+  openModal(shipment: Shipment) {
     this.selectedShipment = shipment;
   }
 
@@ -73,66 +83,73 @@ export class ShipmentListComponent implements OnInit {
     this.selectedShipment = null;
   }
 
-  openProposalModal(shipment: any) {
+  openProposalModal(shipment: Shipment) {
     this.shipmentToPropose = shipment;
-    this.proposedPrice = 0;
+    this.proposedPrice = shipment.proposedPrice || 0;
     this.proposalError = null;
     this.proposalSuccess = false;
   }
 
   closeProposalModal() {
     this.shipmentToPropose = null;
-  }
-
-  acceptShipment(shipment: any) {
-    const transporterId = this.authService.getCurrentUserId();
-    if (transporterId !== null) {
-      const request: ShipmentRequest = {
-        shipment: { id: shipment.id },
-        transporter: { id: transporterId },
-        proposedPrice: shipment.proposedPrice,
-        status: 'PENDING'
-      };
-
-      this.shipmentRequestService.sendRequest(request).subscribe(
-        () => {
-          this.requestedShipmentIds.add(shipment.id);
-          alert('Request sent with proposed price.');
-        },
-        (err: any) => {
-          alert('Failed to send request.');
-          console.error(err);
-        }
-      );
-    }
+    this.proposalError = null;
+    this.proposalSuccess = false;
   }
 
   sendProposal() {
-    if (this.proposedPrice <= 0) {
-      this.proposalError = 'Please enter a valid price.';
+    const transporterId = this.authService.getCurrentUserId();
+
+    if (!this.shipmentToPropose || !transporterId) {
+      this.proposalError = "Missing shipment or transporter ID.";
       return;
     }
 
-    const transporterId = this.authService.getCurrentUserId();
-    if (transporterId !== null && this.shipmentToPropose) {
-      const request: ShipmentRequest = {
-        shipment: { id: this.shipmentToPropose.id },
-        transporter: { id: transporterId },
-        proposedPrice: this.proposedPrice,
-        status: 'PENDING'
-      };
+    const request: ShipmentRequest = {
+      shipment: { id: this.shipmentToPropose.id! },
+      transporter: { id: transporterId },
+      proposedPrice: this.proposedPrice
+    };
 
-      this.shipmentRequestService.sendRequest(request).subscribe(
-        () => {
-          this.requestedShipmentIds.add(this.shipmentToPropose.id);
-          this.proposalSuccess = true;
-          this.proposalError = null;
-        },
-        (err: any) => {
-          this.proposalError = 'Failed to send proposal.';
-          console.error(err);
-        }
-      );
+    this.shipmentRequestService.sendRequest(request).subscribe(
+      () => {
+        this.proposalSuccess = true;
+        this.proposalError = null;
+        this.requestedShipmentIds.add(this.shipmentToPropose!.id!);
+        this.closeProposalModal();
+      },
+      (error) => {
+        this.proposalError = 'You have already submitted a proposal or an error occurred.';
+        this.proposalSuccess = false;
+      }
+    );
+  }
+
+  acceptShipment(shipment: Shipment) {
+    const transporterId = this.authService.getCurrentUserId();
+
+    if (!transporterId) {
+      console.error('Transporter ID is required');
+      return;
     }
+
+    const request: ShipmentRequest = {
+      shipment: { id: shipment.id! },
+      transporter: { id: transporterId },
+      proposedPrice: shipment.proposedPrice || 0
+    };
+
+    this.shipmentRequestService.sendRequest(request).subscribe(
+      () => {
+        this.requestedShipmentIds.add(shipment.id!);
+        alert('You have accepted the shipment at the proposed price.');
+      },
+      (error) => {
+        alert('An error occurred or you have already made a request.');
+      }
+    );
+  }
+
+  hasAlreadyRequested(shipmentId: number): boolean {
+    return this.requestedShipmentIds.has(shipmentId);
   }
 }
