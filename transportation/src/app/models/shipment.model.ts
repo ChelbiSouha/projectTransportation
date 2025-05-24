@@ -7,12 +7,15 @@ export interface Shipment {
   description: string;
   pickupLocation: string;
   dropoffLocation: string;
-  status: string;
+  status: string;  // Optionnellement: 'pending' | 'confirmed' | 'completed' | 'cancelled' ...
   receiverPhone: string;
   weight: number;
   type: string;
+  proposedPrice?: number;
   distance?: number;
   images?: string[];
   user: User;
   confirmedTransporter?: Transporter;
+  createdAt?: string; // ISO string, ou Date si tu préfères
+  updatedAt?: string;
 }

@@ -32,6 +32,9 @@ private baseUrl = `${environment.apiBaseUrl}/transporters`;
 registerTransporter(formData: FormData): Observable<any> {
   return this.http.post(`${environment.apiBaseUrl}/auth/register/transporter`, formData);
 }
+getPendingTransporters(): Observable<Transporter[]> {
+  return this.http.get<Transporter[]>(`${this.baseUrl}/pending`);
+}
 
 
  // Delete a transporter by ID

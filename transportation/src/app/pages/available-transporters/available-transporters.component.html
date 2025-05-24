@@ -1,45 +1,32 @@
 <div class="available-transporters-container">
-  <h2 class="page-title">🚛 Available Transporters</h2>
+  <h2 class="page-title">🚛 Transporteurs disponibles pour l'expédition</h2>
 
-  <div class="shipment-details">
-    <h3>Your Shipment Request</h3>
-    <p><strong>Pickup Location:</strong> {{shipment.pickupLocation}}</p>
-    <p><strong>Drop-off Location:</strong> {{shipment.dropoffLocation}}</p>
-    <p><strong>Cargo Type:</strong> {{shipment.cargoType}}</p>
+  <div *ngIf="loading" class="loading-message">Chargement...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div *ngIf="shipmentRequests.length === 0 && !loading" class="no-requests">
+    Aucun transporteur n’a encore proposé de devis pour cette expédition.
   </div>
 
-  <div class="transporters-list">
-    <div *ngFor="let transporter of transporters" class="transporter-card">
-      <img [src]="transporter.imageUrl" alt="Transporter Image" class="transporter-image">
-
-      <div class="transporter-info">
-        <h4>{{transporter.name}}</h4>
-        <p class="vehicle-type">🚐 {{transporter.vehicleType}}</p>
-        <p class="availability" [ngClass]="{'available': transporter.available, 'unavailable': !transporter.available}">
-          {{transporter.available ? 'Available' : 'Unavailable'}}
-        </p>
-
-        <div class="review-info">
-          ⭐ {{transporter.rating}} • {{transporter.totalReviews}} reviews
-        </div>
-
-        <button class="select-btn" (click)="selectTransporter(transporter)">
-          ✨ Select Transporter
-        </button>
-        <!-- Quote Summary -->
-        <div class="quote-summary">
-          <button class="quote-btn" (click)="toggleQuoteDetails(transporter.id)">
-            View Quote Details
-          </button>
-        </div>
-        <!-- Quote Details -->
-        <div *ngIf="transporter.showQuoteDetails" class="quote-details">
-          <p>Price: ${{ transporter.quotePrice }}</p>
-          <p>Estimated time: {{ transporter.estimatedTime }} days</p>
-          <p>Additional fees: ${{ transporter.additionalFees }}</p>
-          <p>Other details: {{ transporter.otherDetails }}</p>
-        </div>
-      </div>
+  <div *ngFor="let request of shipmentRequests" class="transporter-card">
+    <div class="transporter-header">
+      <h3>{{ request.transporter.name }}</h3>
+      <p class="username">👤 Nom d'utilisateur : {{ request.transporter.user.username }}</p>
+      <p class="phone">📞 Téléphone : {{ request.transporter.phone }}</p>
+      <p class="vehicle-type">🚐 Type de véhicule : {{ request.transporter.vehicleType }}</p>
     </div>
+
+    <div class="quote-details">
+      <p><strong>Prix proposé :</strong> {{ request.proposedPrice }} TND</p>
+      <p><strong>Commentaires :</strong> {{ request.additionalDetails || 'Aucun' }}</p>
+    </div>
+
+    <div class="review-info">
+      ⭐ {{ request.transporter.rating }} • {{ request.transporter.totalReviews }} avis
+    </div>
+
+    <button class="confirm-btn" (click)="confirmTransporter(request.transporter.id)">
+      ✅ Confirmer
+    </button>
   </div>
 </div>
