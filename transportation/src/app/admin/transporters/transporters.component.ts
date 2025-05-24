@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TransporterService } from 'src/app/services/transporter.service';
+import { TransporterService } from '../../services/transporter.service';
+import { AdmindashboardService } from '../../services/admindashboard.service';
 import { Transporter } from 'src/app/models/transporter.model';
 
 @Component({
@@ -11,14 +12,17 @@ export class TransportersComponent implements OnInit {
   transporterRequests: Transporter[] = [];
   selectedTransporter: Transporter | null = null;
 
-  constructor(private transporterService: TransporterService) {}
+  constructor(
+    private transporterService: TransporterService,
+    private adminService: AdmindashboardService // <- ajout
+  ) {}
 
   ngOnInit(): void {
     this.loadTransporters();
   }
 
   loadTransporters() {
-    this.transporterService.getAllTransporters().subscribe(data => {
+    this.transporterService.getPendingTransporters().subscribe(data => {
       this.transporterRequests = data;
     });
   }
@@ -31,23 +35,28 @@ export class TransportersComponent implements OnInit {
     this.selectedTransporter = null;
   }
 
-  approveRequest(id: number) {
-    const transporter = this.transporterRequests.find(r => r.id === id);
-    if (transporter) {
-      transporter.available = true;
-      this.transporterService.updateTransporter(id, transporter).subscribe(() => {
-        transporter.available = true;
-      });
-    }
+  approveRequest(userId: number) {
+    this.adminService.approveTransporter(userId).subscribe({
+      next: () => {
+        this.transporterRequests = this.transporterRequests.filter(r => r.user.id !== userId);
+        alert('Transporter approved successfully.');
+      },
+      error: () => {
+        alert('Error approving transporter.');
+      }
+    });
   }
 
-  rejectRequest(id: number) {
-    const transporter = this.transporterRequests.find(r => r.id === id);
-    if (transporter) {
-      transporter.available = false;
-      this.transporterService.updateTransporter(id, transporter).subscribe(() => {
-        transporter.available = false;
-      });
-    }
+  rejectRequest(userId: number) {
+    this.adminService.rejectTransporter(userId).subscribe({
+      next: () => {
+        this.transporterRequests = this.transporterRequests.filter(t => t.user.id !== userId);
+        alert('Transporter rejected and deleted.');
+      },
+      error: () => {
+        alert('Error rejecting transporter.');
+      }
+    });
   }
+
 }

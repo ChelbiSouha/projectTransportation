@@ -57,4 +57,9 @@ export class ShipmentService {
     return this.http.get<Shipment[]>(this.buildUrl('/search'), { params })
       .pipe(catchError(this.handleError));
   }
+confirmTransporter(shipmentId: number, transporterId: number): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/confirm-transporter/${shipmentId}/${transporterId}`, {})
+    .pipe(catchError(this.handleError));
+}
+
 }
