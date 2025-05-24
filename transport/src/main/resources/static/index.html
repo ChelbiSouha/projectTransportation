@@ -1,112 +1,141 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title>Location Based WebSocket Application - Spring Boot</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Based WebSocket – Carte</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <!-- Bootstrap (optionnel) -->
+    <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"
+    />
+
+    <!-- Leaflet CSS -->
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
+
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-<noscript>
-    <h2>Sorry! Your browser doesn't support javascript</h2>
-</noscript>
+<div class="container">
+    <h2>Real time localisation</h2>
+    <button id="setLocation" class="btn btn-primary">Start Live</button>
+    <!-- où s’affichera la carte -->
+    <div id="map"></div>
+</div>
+
+<!-- jQuery + Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<!-- SockJS / STOMP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-    var stompClient = null;
+    let stompClient = null;
+    let map, userMarker;
+    const otherMarkers = {};
+    let myUserName, isConnected = false;
 
-    var myLatitude;
-    var myLongitude;
-    var myUserName;
+    // quand on a la géoloc, on centre la carte et on place/le déplace le marqueur
+    function showPosition(pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
 
-    function getLocation() {
+        // première initialisation de la carte
+        if (!map) {
+            map = L.map('map').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            userMarker = L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(`Vous: ${myUserName}`)
+                .openPopup();
+
+        } else {
+            // on déplace simplement le marqueur existant
+            userMarker.setLatLng([lat, lng]);
+        }
+    }
+
+    // construit le JSON à envoyer
+    function getLocationBean() {
+        const { lat, lng } = userMarker.getLatLng();
+        return JSON.stringify({
+            user: myUserName,
+            latitude: lat,
+            longitude: lng,
+            time: Date.now()
+        });
+    }
+
+    function connectMe() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, () => {
+            // souscrire au topic
+            stompClient.subscribe('/app/getData', onMessageReceived);
+            isConnected = true;
+        }, () => alert('Impossible de se connecter au WebSocket'));
+    }
+
+    function onMessageReceived(payload) {
+        const list = JSON.parse(payload.body);
+
+        list.forEach(obj => {
+            const { user, latitude, longitude } = obj;
+
+            // si on a déjà un marqueur pour cet utilisateur, on le déplace,
+            // sinon on le crée
+            if (otherMarkers[user]) {
+                otherMarkers[user].setLatLng([latitude, longitude]);
+            } else {
+                otherMarkers[user] = L.marker([latitude, longitude])
+                    .addTo(map)
+                    .bindPopup(`${user}`);
+            }
+        });
+    }
+
+    $(function(){
+        // demande le pseudo
+        const name = prompt("Ton nom :", "Mohamed Ali");
+        myUserName = name && name.trim() || "Anonymous";
+
+        // récupère une première fois la position, pour initialiser la carte
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition);
         } else {
-            $("#currentUser").html("Geolocation is not supported by this browser.");
+            alert("Géolocalisation non supportée");
         }
-    }
-    function showPosition(position) {
-        myLatitude = position.coords.latitude+'';
-        myLongitude = position.coords.longitude+'';
-        var currentUserLocation = "<b>My UserName:</b>"+myUserName+"<br /><b>Latitude:</b> "+position.coords.latitude+"<br /><b>Longitude:</b> "+position.coords.longitude;
-        console.log('currentUserLocation : '+currentUserLocation);
-        $("#currentUser").html(currentUserLocation);
-    }
-    function getLocationBean() {
-        return JSON.stringify({user:myUserName, latitude:myLatitude, longitude:myLongitude, time:'no'});
-    }
 
-    var isConntectedFlag = false;
-    $(document).ready(function(){
-        var person = prompt("Please enter your name", "RutvikPatel");
-        if (person != null) {
-            myUserName = person;
-        }else{
-            myUserName = "Anonymous";
-        }
-        getLocation();
+        // mise à jour régulière de la position + envoi au serveur
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition(pos => {
+                showPosition(pos);
+                if (isConnected) {
+                    stompClient.send("/app/saveLocation", {}, getLocationBean());
+                }
+            });
+        }, 5000);
 
-        setInterval(function(){
-            getLocation();
-
-            if(isConntectedFlag){
-                whenConnected();
-            }
-        } , 5000);
-
-        $("#setLocation").click(function(){
-            connectMe();
-        });
+        // bouton pour se connecter au WS
+        $('#setLocation').click(connectMe);
     });
-
-    function connectMe() {
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, whenConnected, whenError);
-
-        isConntectedFlag = true;
-    }
-    function whenConnected() {
-        console.log('sending and receiving data');
-
-        // Subscribe to the Public
-        stompClient.subscribe('/app/getData', whenMessageReceived);
-
-        // Tell your location to the server
-        stompClient.send( "/app/saveLocation", {}, getLocationBean() );
-    }
-    function whenError(error) {
-        alert('Could not connect to WebSocket server. Please refresh this page to try again!');
-    }
-    function whenMessageReceived(payload) {
-        var message = JSON.parse(payload.body);
-        console.log(message);
-
-        var result = '';
-        $.each(message, function( index, obj ) {
-            console.log(obj.user);
-            result += '<b>User:</b>'+obj.user+' <b>Latitude:</b>'+obj.latitude+' <b>Longitude:</b>'+obj.longitude+'<br />';
-        });
-        $('#otherUser').html(result);
-    }
 </script>
-
-<div class="container">
-    <h2>Location Based Web Socket Application - Spring Boot</h2>
-    <button id="setLocation" type="button" class="btn btn-default">Live</button><br />
-
-    <div class="container col-sm-4">
-        <div><h4>Current User's Data</h4></div>
-        <div id="currentUser"></div>
-    </div>
-    <div class="container col-sm-8">
-        <div><h4>Public User's Data</h4></div>
-        <div id="otherUser"></div>
-    </div>
-</div>
 </body>
 </html>
