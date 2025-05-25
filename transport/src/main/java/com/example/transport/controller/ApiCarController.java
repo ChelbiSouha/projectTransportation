@@ -7,11 +7,7 @@ import com.example.transport.entities.CarLocationUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author manhvud
  * @since 2023/11/16
  */
-@Controller
+@RestController
 @RequestMapping("/api")
 public class ApiCarController {
 
@@ -58,6 +54,11 @@ public class ApiCarController {
     @ResponseBody
     public Map<String, Boolean> getOnlineStatus() {
         return carLocationConsumer.getOnlineStatus();
+    }
+
+    @GetMapping("/ping")
+    public String ping() {
+        return "API is alive";
     }
 
 }

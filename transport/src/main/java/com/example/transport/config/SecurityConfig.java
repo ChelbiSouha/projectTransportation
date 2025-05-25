@@ -32,7 +32,10 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/register/transporter",
                                 "/error",
-                                  "user/hello"
+                                "/user/hello",
+                                "/api/ping",
+                                "/api/updateLocation",
+                                "/myapp/api/updateLocation" // <-- Added this
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

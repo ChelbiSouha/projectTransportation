@@ -31,12 +31,13 @@ public class CarLocationConsumer {
     @Autowired
     private       SimpMessagingTemplate messagingTemplate;
 
-    private final Map<String, CarLocationUpdate> allLocations         = new HashMap<>();
-    private final Map<String, Instant>           lastUpdateTimestamps = new HashMap<>();
+    private final Map<String, CarLocationUpdate> allLocations = new HashMap<>();
+    private final Map<String, Instant> lastUpdateTimestamps = new HashMap<>();
 
     public CarLocationConsumer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
+
 
     @KafkaListener(topics = "car-tracking-topic", groupId = "car-tracking-group")
     public void consume(String message) {
