@@ -21,6 +21,9 @@ public class CarLocationUpdate implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+    public CarLocationUpdate() {
+        // Required for JSON deserialization
+    }
 
     public String getCarId() {
         return carId;

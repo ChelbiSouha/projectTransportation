@@ -32,7 +32,11 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/register/transporter",
                                 "/error",
-                                  "user/hello"
+                                "/user/hello",
+                                "/ping",
+                                "/updateLocation",
+                                "/online-status",
+                                "/all-locations"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

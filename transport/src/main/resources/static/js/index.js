@@ -71,7 +71,7 @@ function updateMap(location) {
 function fetchAllCarLocations() {
     // Fetch all car locations from your backend API
     // Adjust the API endpoint based on your application structure
-    fetch('/api/all-locations')
+    fetch('/myapp/api/all-locations')
         .then(response => response.json())
         .then(locations => {
             Object.values(locations).forEach(location => {
