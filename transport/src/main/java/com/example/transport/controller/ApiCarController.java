@@ -12,20 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * <H3>
- * ApiCarController
- * </H3>
- *
- * @author manhvud
- * @since 2023/11/16
- */
 @RestController
-@RequestMapping("/api")
 public class ApiCarController {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper                  objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     private CarLocationConsumer carLocationConsumer;
