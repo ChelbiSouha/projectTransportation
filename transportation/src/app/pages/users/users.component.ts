@@ -1,47 +1,70 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ShipmentService } from 'src/app/services/shipment.service';
+import { Shipment } from 'src/app/models/shipment.model';
+import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent {
-  user = { name: 'John Doe' };
-      activeShipmentsCount = 3;  // Example static data
-      pastShipmentsCount = 2;    // Example static data
-      pendingShipmentsCount = 1; // Example static data
-      shipments = [              // Example static data
-        { id: '1', pickupLocation: 'Tunis', dropoffLocation: 'Sousse', date: new Date(), status: 'Active' },
-        { id: '2', pickupLocation: 'Ariana', dropoffLocation: 'Sfax', date: new Date(), status: 'Delivered' },
-        { id: '3', pickupLocation: 'Nabeul', dropoffLocation: 'Djerba', date: new Date(), status: 'Pending' },
-      ];
+export class UsersComponent implements OnInit {
+  user: any;
+  shipments: Shipment[] = [];
 
-      constructor(private router: Router) {}
+  activeShipmentsCount = 0;
+  pastShipmentsCount = 0;
+  pendingShipmentsCount = 0;
 
-        ngOnInit(): void {
-          // No need to load data from the service anymore
-        }
+  constructor(
+    private router: Router,
+    private shipmentService: ShipmentService,
+    private authService: AuthService
+  ) {}
 
-        // These methods are placeholders for your buttons, and they can be empty for now
-        logout() {
-          console.log('Logout');
-        }
+  ngOnInit(): void {
+    this.user = this.authService.getCurrentUser();
 
-        addShipment() {
-          console.log('Add Shipment');
-        }
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.loadUserShipments(userId);
+    }
+  }
 
-        trackShipment() {
-          console.log('Track Shipment');
-        }
+  loadUserShipments(userId: number): void {
+    this.shipmentService.getShipmentsByUserId(userId).subscribe({
+      next: (data: Shipment[]) => {
+        this.shipments = data;
 
-        viewShipmentDetails(id: string) {
-          console.log(`Viewing details for shipment ${id}`);
-        }
-       goToShipmentPage(): void {
-          // Redirect to the shipment page
-          this.router.navigate(['/home/shipment']);
-        }
+        this.activeShipmentsCount = data.filter(s => s.status.toLowerCase() === 'active').length;
+        this.pastShipmentsCount = data.filter(s => s.status.toLowerCase() === 'delivered' || s.status.toLowerCase() === 'completed').length;
+        this.pendingShipmentsCount = data.filter(s => s.status.toLowerCase() === 'pending').length;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des expéditions :', err);
+      }
+    });
+  }
 
+  logout() {
+    this.authService.logout();
+  }
+
+  addShipment() {
+    this.router.navigate(['/home/step1']);
+  }
+
+  trackShipment() {
+    console.log('Track Shipment');
+  }
+
+ viewShipmentDetails(id: number): void {
+   this.router.navigate(['/shipment', id]);
+ }
+
+
+  goToShipmentPage(): void {
+    this.router.navigate(['/home/shipment']);
+  }
 }

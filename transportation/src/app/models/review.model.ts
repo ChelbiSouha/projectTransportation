@@ -7,7 +7,7 @@ export interface Review {
   id?: number;
   rating: number;
   comment: string;
-  date: string;
+  date?: string;
   user: User;
   transporter: Transporter;
   shipment?: Shipment;

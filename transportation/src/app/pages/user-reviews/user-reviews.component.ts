@@ -59,12 +59,11 @@ export class UserReviewsComponent implements OnInit {
     const newReview: Review = {
       rating: this.review.rating,
       comment: this.review.comment,
-      date: today,
       user: user,
       transporter: this.selectedShipment.confirmedTransporter!,
       shipment: this.selectedShipment
     };
-
+    console.log('Review envoyée:', newReview);
     this.reviewService.addReview(newReview).subscribe({
       next: () => {
         alert('Review submitted successfully!');

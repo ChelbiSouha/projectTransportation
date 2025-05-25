@@ -2,7 +2,7 @@
   <!-- Welcome Bar -->
   <div class="user-greeting-bar compact">
     <div class="greeting-text">
-      <h1><span class="colored-title">Welcome,</span> {{ user.name }} 👋</h1>
+      <h1><span class="colored-title">Welcome,</span> {{ user?.username }} 👋</h1>
       <p>Here’s what’s happening with your shipments</p>
     </div>
     <div class="user-icons">
@@ -40,7 +40,7 @@
       </div>
     </section>
 
-<!-- Quick Actions -->
+    <!-- Quick Actions -->
     <section class="quick-actions">
       <button (click)="goToShipmentPage()">➕ Add New Shipment</button>
       <button (click)="trackShipment()">📍 Track Shipment</button>
@@ -58,7 +58,7 @@
             <th>Drop-off</th>
             <th>Date</th>
             <th>Status</th>
-            <th></th>
+            <th>Actions</th>
           </tr>
           </thead>
           <tbody>
@@ -66,11 +66,11 @@
             <td>{{ shipment.id }}</td>
             <td>{{ shipment.pickupLocation }}</td>
             <td>{{ shipment.dropoffLocation }}</td>
-            <td>{{ shipment.date | date }}</td>
+            <td>{{ shipment.createdAt | date: 'shortDate' }}</td>
             <td>
-              <span class="status-badge {{ shipment.status | lowercase }}">
-                {{ shipment.status }}
-              </span>
+                <span class="status-badge {{ shipment.status.toLowerCase() }}">
+                  {{ shipment.status }}
+                </span>
             </td>
             <td>
               <button (click)="viewShipmentDetails(shipment.id)">👁️ View</button>
@@ -80,6 +80,5 @@
         </table>
       </div>
     </section>
-
   </main>
 </div>
