@@ -29,6 +29,9 @@ public class Shipment {
     private Double distance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "quote_id", referencedColumnName = "id")
+    private Quote quote;
 
     @PrePersist
     protected void onCreate() {

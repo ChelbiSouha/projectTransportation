@@ -1,15 +1,6 @@
 package com.example.transport.entities;
 
 import java.io.Serializable;
-
-/**
- * <H3>
- * CarLocationUpdate
- * </H3>
- *
- * @author manhvud
- * @since 2023/11/16
- */
 public class CarLocationUpdate implements Serializable {
 
     private String carId;

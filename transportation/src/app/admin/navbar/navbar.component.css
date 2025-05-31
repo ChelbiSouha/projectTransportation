@@ -1,0 +1,47 @@
+/* Notification bell button centered content */
+.btn.btn-light.rounded-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+/* Bell icon sizing and alignment */
+.btn.btn-light.rounded-circle i.fas.fa-bell {
+  font-size: 18px;
+  line-height: 1;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+}
+
+/* Notification badge style */
+.badge.badge-danger.position-absolute {
+  top: 4px;
+  right: 4px;
+  font-size: 0.6rem;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+/* Notifications panel */
+.notifications-panel {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-size: 0.9rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+}
+
+.notifications-panel button {
+  font-size: 0.8rem;
+}

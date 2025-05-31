@@ -77,4 +77,11 @@ public class ShipmentServiceImpl implements ShipmentServiceInterface {
     public List<Shipment> searchShipmentsByLocation(String keyword) {
         return shipmentRepository.searchByLocation(keyword);
     }
+    @Override
+    public Shipment markAsDelivered(Long shipmentId) {
+        Shipment shipment = getShipmentById(shipmentId);
+        shipment.setStatus("Delivered");
+        return shipmentRepository.save(shipment);
+    }
+
 }

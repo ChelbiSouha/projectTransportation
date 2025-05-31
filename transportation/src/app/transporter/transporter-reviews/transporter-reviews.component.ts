@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReviewService } from 'src/app/services/review.service';
+import { TransporterService } from 'src/app/services/transporter.service';
+import { AuthService } from 'src/app/services/auth-service.service';
 import { Review } from 'src/app/models/review.model';
 import { Transporter } from 'src/app/models/transporter.model';
 
@@ -12,22 +14,48 @@ export class TransporterReviewsComponent implements OnInit {
   transporter!: Transporter;
   reviews: Review[] = [];
   overallRating: number = 0;
-  transporterId: number = 1; // 🔥 Tu peux le récupérer dynamiquement selon ton projet (par ex: depuis route params)
-   notifications = [
-      { message: 'New shipment assigned.' },
-      { message: 'Profile updated successfully.' }
-    ];
-    showNotifications = false;
-    showProfile = false;
-    activeSection = 'profile';
-  constructor(private reviewService: ReviewService) {}
 
-  ngOnInit(): void {
-    this.loadReviews();
-  }
+  notifications = [
+    { message: 'New shipment assigned.' },
+    { message: 'Profile updated successfully.' }
+  ];
+  showNotifications = false;
+  showProfile = false;
+  activeSection = 'profile';
+
+  constructor(
+    private reviewService: ReviewService,
+    private transporterService: TransporterService,
+    private authService: AuthService
+  ) {}
+
+ transporterId: number | null = null;
+
+ ngOnInit(): void {
+   this.transporterId = this.authService.getCurrentUserId();
+
+   if (this.transporterId === null) {
+     console.error('Transporter ID not found');
+     return;
+   }
+
+   this.transporterService.getTransporterById(this.transporterId).subscribe({
+     next: (transporter) => {
+       this.transporter = transporter;
+       this.loadReviews();
+     },
+     error: (error) => console.error('Error loading transporter:', error)
+   });
+ }
+
 
   loadReviews(): void {
-this.reviewService.getReviewsByTransporter(this.transporterId).subscribe({
+    if (this.transporterId === null) {
+      console.error('Cannot load reviews: transporterId is null');
+      return;
+    }
+
+    this.reviewService.getReviewsByTransporter(this.transporterId).subscribe({
       next: (data: Review[]) => {
         this.reviews = data;
         this.calculateOverallRating();
@@ -38,6 +66,7 @@ this.reviewService.getReviewsByTransporter(this.transporterId).subscribe({
     });
   }
 
+
   calculateOverallRating(): void {
     if (this.reviews.length === 0) {
       this.overallRating = 0;
@@ -46,12 +75,13 @@ this.reviewService.getReviewsByTransporter(this.transporterId).subscribe({
     const total = this.reviews.reduce((sum, review) => sum + review.rating, 0);
     this.overallRating = parseFloat((total / this.reviews.length).toFixed(1));
   }
-logout(): void {
-  // Exemple simple : juste rediriger vers la page login
-  localStorage.clear();
-  window.location.href = '/login';
-}
-isActive(section: string): boolean {
+
+  logout(): void {
+    localStorage.clear();
+    window.location.href = '/login';
+  }
+
+  isActive(section: string): boolean {
     return this.activeSection === section;
   }
 

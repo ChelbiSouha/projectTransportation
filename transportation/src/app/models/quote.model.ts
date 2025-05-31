@@ -3,10 +3,11 @@ import { Transporter } from './transporter.model';
 
 export interface Quote {
   id?: number;
-  price: number;
+  estimatedPrice: number;
   date: string;
   clientApproved?: boolean;
   transporterApproved?: boolean;
   shipment: Shipment;
-  transporter: Transporter;
+  transporter: Transporter | null;  // Allow null
 }
+

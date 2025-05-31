@@ -1,6 +1,7 @@
 package com.example.transport.controller;
 
 import com.example.transport.entities.Review;
+import com.example.transport.entities.ReviewRequest;
 import com.example.transport.services.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,15 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/add")
-    public ResponseEntity<Review> addReview(@Valid @RequestBody Review review) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // the authenticated user's email or username
-
-        return ResponseEntity.ok(reviewService.addReview(review, email));
+    public ResponseEntity<?> addReview(@Valid @RequestBody ReviewRequest reviewDTO) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            Review createdReview = reviewService.addReview(reviewDTO, email);
+            return ResponseEntity.ok(createdReview);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/all")

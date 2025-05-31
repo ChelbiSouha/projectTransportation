@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/ping",
                                 "/updateLocation",
                                 "/online-status",
-                                "/all-locations"
+                                "/all-locations",
+                                "/ws/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

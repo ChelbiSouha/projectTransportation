@@ -25,8 +25,8 @@ import { ShipmentStep2Component } from './pages/shipment-step2/shipment-step2.co
 import { ShipmentStep3Component } from './pages/shipment-step3/shipment-step3.component';
 import { ShipmentListComponent } from './pages/shipment-list/shipment-list.component';
 import { UserReviewsComponent } from './pages/user-reviews/user-reviews.component';
-
-
+import { RegisterAdminComponent } from './admin/register-admin/register-admin.component';
+import { ShipmentTrackingComponent } from './pages/shipment-tracking/shipment-tracking.component';
 
 const routes: Routes = [
   {
@@ -42,6 +42,11 @@ const routes: Routes = [
       { path: 'step3',component: ShipmentStep3Component},
       { path: 'list',component: ShipmentListComponent},
       { path: 'review',component: UserReviewsComponent },
+      {
+        path: 'track-shipment', // optional if you want to track a specific one
+        component: ShipmentTrackingComponent
+      }
+
 
 
 
@@ -58,6 +63,7 @@ const routes: Routes = [
       { path: 'shipments', component: AdminShipmentsComponent },
       { path: 'quotes', component: AdminQuotesComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'register-admin', component: RegisterAdminComponent },
     ]
   },
   { path: 'register-transporter', component: RegisterTransporterComponent },

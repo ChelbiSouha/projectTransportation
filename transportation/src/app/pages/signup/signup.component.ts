@@ -9,7 +9,7 @@ import { RegisterRequest, Role } from '../../models/register-request.model';
 })
 export class SignupComponent {
   username: string = '';
-  email: string = ''; // now used
+  email: string = '';
   password: string = '';
   confirmPassword: string = '';
   role: Role = Role.CLIENT;

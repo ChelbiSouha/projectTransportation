@@ -25,7 +25,7 @@ public class QuoteService {
 
             // Logique de tarification simple
             double price = (distance * 1.0) + (weight * 0.2);
-            quote.setPrice(price);
+            quote.setEstimatedPrice(price);
         }
 
         quote.setDate(LocalDateTime.now());
@@ -58,7 +58,7 @@ public class QuoteService {
     public Quote updateQuote(Long quoteId, Quote updatedQuote) {
         Quote existing = quoteRepository.findById(quoteId).orElse(null);
         if (existing != null) {
-            existing.setPrice(updatedQuote.getPrice());
+            existing.setEstimatedPrice(updatedQuote.getEstimatedPrice());
             existing.setClientApproved(updatedQuote.getClientApproved());
             existing.setTransporterApproved(updatedQuote.getTransporterApproved());
             return quoteRepository.save(existing);

@@ -1,5 +1,6 @@
 package com.example.transport.repository;
 
+import com.example.transport.entities.Role;
 import com.example.transport.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Recherche tous les utilisateurs dont l’email contient un domaine
     @Query("SELECT u FROM User u WHERE u.email LIKE %:domain%")
     List<User> findByEmailContaining(@Param("domain") String emailDomain);
+    List<User> findByRole(com.example.transport.entities.Role role);
+    Optional<User> findFirstByRole(Role role);
+
 
 }

@@ -1,13 +1,16 @@
 package com.example.transport.controller;
-import com.example.transport.entities.Shipment;
+
+import com.example.transport.entities.*;
+import com.example.transport.repository.NotificationRepository;
+import com.example.transport.repository.UserRepository;
 import com.example.transport.services.ShipmentServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/shipment")
@@ -15,6 +18,12 @@ public class ShipmentController {
 
     @Autowired
     private ShipmentServiceInterface shipmentService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserRepository userRepository; // 🔧 Ajouté
 
     @PostMapping("/add")
     public Shipment addShipment(@RequestBody Shipment shipment) {
@@ -46,23 +55,56 @@ public class ShipmentController {
     public List<Shipment> getShipmentsByUserId(@PathVariable Long userId) {
         return shipmentService.getShipmentsByUserId(userId);
     }
+
     @GetMapping("/search")
     public ResponseEntity<List<Shipment>> searchShipments(@RequestParam String location) {
         List<Shipment> results = shipmentService.searchShipmentsByLocation(location);
         return ResponseEntity.ok(results);
     }
+
     @PutMapping("/confirm-transporter/{shipmentId}/{transporterId}")
     public ResponseEntity<?> confirmTransporter(
             @PathVariable Long shipmentId,
             @PathVariable Long transporterId) {
         Shipment updated = shipmentService.confirmTransporterForShipment(shipmentId, transporterId);
+        Long transporterUserId = updated.getConfirmedTransporter().getUser().getId();
+        Notification notif = new Notification(
+                transporterUserId,
+                "SHIPMENT_CONFIRMED",
+                "User " + updated.getUser().getUsername() + " confirmed the shipment with you."
+        );
+        notificationRepository.save(notif);
         return ResponseEntity.ok(updated);
     }
+
     @GetMapping("/status/{status}")
     public List<Shipment> getShipmentsByStatus(@PathVariable String status) {
         return shipmentService.getShipmentsByStatus(status);
     }
 
+    @PutMapping("/mark-delivered/{shipmentId}")
+    public ResponseEntity<?> markShipmentAsDelivered(@PathVariable Long shipmentId) {
+        Shipment shipment = shipmentService.markAsDelivered(shipmentId);
 
+        // ✅ Notification pour l’utilisateur
+        Notification notifUser = new Notification(
+                shipment.getUser().getId(),
+                "SHIPMENT_DELIVERED",
+                "Your shipment has been delivered successfully."
+        );
+        notificationRepository.save(notifUser);
 
+        // ✅ Notification pour l’administrateur
+        Optional<User> admin = userRepository.findFirstByRole(Role.ADMIN);
+        admin.ifPresent(a -> {
+            Notification notifAdmin = new Notification(
+                    a.getId(),
+                    "SHIPMENT_DELIVERED",
+                    "Shipment #" + shipment.getId() + " has been delivered."
+            );
+            notificationRepository.save(notifAdmin);
+        });
+
+        return ResponseEntity.ok("Shipment marked as delivered.");
+    }
 }

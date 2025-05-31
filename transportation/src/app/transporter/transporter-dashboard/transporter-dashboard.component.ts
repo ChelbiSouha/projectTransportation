@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ShipmentService } from 'src/app/services/shipment.service';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { Shipment } from 'src/app/models/shipment.model';
+import { TransporterService } from 'src/app/services/transporter.service';
+import { ReviewService } from 'src/app/services/review.service';
 
 @Component({
   selector: 'app-transporter-dashboard',
@@ -6,56 +11,81 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./transporter-dashboard.component.css']
 })
 export class TransporterDashboardComponent implements OnInit {
-  transporter = {
-    name: 'John Doe',
-    email: 'johndoe@example.com'
-  };
-
-  activeShipments = 5;
-  pendingShipments = 3;
-  reviews = 15;
-  earnings = '$1200';
-
-  latestFeedback = {
-    userName: 'Alice',
-    comment: 'Great service! Will definitely use again.',
-    rating: 5
-  };
-
-  notifications = [
-    { title: 'New Shipment Request', message: 'You have a new shipment request for delivery.' },
-    { title: 'Update on Pending Shipment', message: 'Your shipment is now in progress.' }
-  ];
+  completedShipments: Shipment[] = [];
+  transporterId: number | null = null;
+  transporter: any;
+  activeShipments = 0;
+  pendingShipments = 0;
+  reviews = 0;
+  earnings = 0;
+  latestFeedback: any = null;
+  notifications: any[] = [];
 
   showNotifications = false;
   showProfile = false;
+  activeSection: string = 'dashboard';  // Default active section
 
-  // Declare the activeRoute property
-  activeRoute: string = 'dashboard';  // Default route can be set to 'dashboard'
+  setActive(section: string): void {
+    this.activeSection = section;
+  }
 
-  constructor() { }
+  isActive(section: string): boolean {
+    return this.activeSection === section;
+  }
+  constructor(
+    private transporterService: TransporterService,
+    private shipmentService: ShipmentService,
+    private reviewService: ReviewService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return;
+
+    this.transporterService.getTransporterById(userId).subscribe(transporter => {
+      this.transporter = transporter;
+      console.log('Transporter reçu:', transporter);
+      this.transporterId = transporter.id;
+      this.loadDashboardData(this.transporterId);
+      this.loadCompletedShipments(this.transporterId);
+    });
+  }
+
+  loadCompletedShipments(transporterId: number): void {
+    this.shipmentService.getAllShipments().subscribe(shipments => {
+      this.completedShipments = shipments.filter(
+        s => s.status === 'completed' && s.confirmedTransporter?.id === transporterId
+      );
+    });
+  }
+
+  loadDashboardData(transporterId: number): void {
+    this.shipmentService.getAllShipments().subscribe(shipments => {
+      const transporterShipments = shipments.filter(s => s.confirmedTransporter?.id === transporterId);
+
+      this.activeShipments = transporterShipments.filter(s => s.status === 'confirmed' || s.status === 'in-progress').length;
+      this.pendingShipments = transporterShipments.filter(s => s.status === 'pending').length;
+      this.earnings = transporterShipments.reduce((sum, s) => sum + (s.proposedPrice || 0), 0);
+    });
+
+    this.reviewService.getReviewsByTransporter(transporterId).subscribe(reviews => {
+      this.reviews = reviews.length;
+      this.latestFeedback = reviews.length > 0 ? reviews[reviews.length - 1] : null;
+    });
   }
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
+    this.showProfile = false;
   }
 
   toggleProfile(): void {
     this.showProfile = !this.showProfile;
-  }
-
-  setActive(route: string): void {
-    this.activeRoute = route;  // Set the active route
-  }
-
-  // Check if the route is active
-  isActive(route: string): boolean {
-    return this.activeRoute === route;
+    this.showNotifications = false;
   }
 
   logout(): void {
-    window.location.href = '/home'; // Navigate to the home page
+    this.authService.logout();
   }
 }

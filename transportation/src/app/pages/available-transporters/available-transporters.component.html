@@ -1,32 +1,32 @@
 <div class="available-transporters-container">
-  <h2 class="page-title">🚛 Transporteurs disponibles pour l'expédition</h2>
+  <h2 class="page-title">🚛 Available Transporters for Shipment</h2>
 
-  <div *ngIf="loading" class="loading-message">Chargement...</div>
+  <div *ngIf="loading" class="loading-message">Loading...</div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="shipmentRequests.length === 0 && !loading" class="no-requests">
-    Aucun transporteur n’a encore proposé de devis pour cette expédition.
+    No transporters have submitted a quote for this shipment yet.
   </div>
 
   <div *ngFor="let request of shipmentRequests" class="transporter-card">
     <div class="transporter-header">
       <h3>{{ request.transporter.name }}</h3>
-      <p class="username">👤 Nom d'utilisateur : {{ request.transporter.user.username }}</p>
-      <p class="phone">📞 Téléphone : {{ request.transporter.phone }}</p>
-      <p class="vehicle-type">🚐 Type de véhicule : {{ request.transporter.vehicleType }}</p>
+      <p class="username">👤 Username: {{ request.transporter.user.username }}</p>
+      <p class="phone">📞 Phone: {{ request.transporter.phone }}</p>
+      <p class="vehicle-type">🚐 Vehicle Type: {{ request.transporter.vehicleType }}</p>
     </div>
 
     <div class="quote-details">
-      <p><strong>Prix proposé :</strong> {{ request.proposedPrice }} TND</p>
-      <p><strong>Commentaires :</strong> {{ request.additionalDetails || 'Aucun' }}</p>
+      <p><strong>Proposed Price:</strong> {{ request.proposedPrice }} TND</p>
+      <p><strong>Comments:</strong> {{ request.additionalDetails || 'None' }}</p>
     </div>
 
     <div class="review-info">
-      ⭐ {{ request.transporter.rating }} • {{ request.transporter.totalReviews }} avis
+      ⭐ {{ request.transporter.rating }} • {{ request.transporter.totalReviews }} reviews
     </div>
 
     <button class="confirm-btn" (click)="confirmTransporter(request.transporter.id)">
-      ✅ Confirmer
+      ✅ Confirm
     </button>
   </div>
 </div>

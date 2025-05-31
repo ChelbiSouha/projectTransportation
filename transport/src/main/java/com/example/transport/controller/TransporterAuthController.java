@@ -1,4 +1,6 @@
 package com.example.transport.controller;
+import com.example.transport.entities.Notification;
+import com.example.transport.repository.NotificationRepository;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.transport.entities.Role;
 import com.example.transport.entities.Transporter;
@@ -27,6 +29,8 @@ public class TransporterAuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @PostMapping(value = "/transporter", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> registerTransporter(
@@ -70,8 +74,25 @@ public class TransporterAuthController {
         }
 
         transporterRepository.save(transporter);
+        notifyAdmins(
+                "NEW_TRANSPORTER_APPLICATION",
+                "A new transporter has registered and is awaiting approval."
+        );
 
         response.put("message", "Transporter registered successfully. Awaiting admin approval.");
         return ResponseEntity.ok(response);
+
     }
+    private void notifyAdmins(String type, String message) {
+        // Récupérer tous les admins depuis la base
+        for (User admin : userRepository.findByRole(Role.ADMIN)) {
+            Notification notif = new Notification(
+                    admin.getId(),
+                    type,
+                    message
+            );
+            notificationRepository.save(notif);
+        }
+    }
+
 }

@@ -5,6 +5,10 @@ import { Shipment } from 'src/app/models/shipment.model';
 import { Review } from 'src/app/models/review.model';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { Router } from '@angular/router';
+import { ReviewRequest } from 'src/app/models/review-request.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+
 
 @Component({
   selector: 'app-user-reviews',
@@ -23,13 +27,20 @@ export class UserReviewsComponent implements OnInit {
   };
   selectedShipment?: Shipment;
   submitting = false;
-
+  reviewForm: FormGroup;
   constructor(
-    private shipmentService: ShipmentService,
-    private reviewService: ReviewService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+      private shipmentService: ShipmentService,
+      private reviewService: ReviewService,
+      private authService: AuthService,
+      private router: Router,
+      private fb: FormBuilder // ✅ Ajouté
+    ) {
+      this.reviewForm = this.fb.group({
+        rating: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
+        comment: ['', Validators.required]
+      });
+    }
+
 
   ngOnInit(): void {
     const userId = this.authService.currentUserValue?.id ?? null;
@@ -49,31 +60,48 @@ export class UserReviewsComponent implements OnInit {
     this.selectedShipment = shipment;
   }
 
+  // supprimer la propriété `review` si tu n’en as plus besoin
   submitReview() {
-    if (!this.selectedShipment) return;
+    if (!this.selectedShipment || !this.reviewForm.valid) return;
 
     this.submitting = true;
-    const user = this.authService.currentUserValue;
-    const today = new Date().toISOString();
 
-    const newReview: Review = {
-      rating: this.review.rating,
-      comment: this.review.comment,
-      date: today,
-      user: user,
-      transporter: this.selectedShipment.confirmedTransporter!,
-      shipment: this.selectedShipment
+    const userId = this.authService.currentUserValue?.id;
+    const transporterId = this.selectedShipment.confirmedTransporter?.id;
+
+    if (!userId || !transporterId) {
+      alert('Missing user or transporter info.');
+      this.submitting = false;
+      return;
+    }
+
+    const newReviewRequest: ReviewRequest = {
+      rating: this.reviewForm.value.rating,
+      comment: this.reviewForm.value.comment,
+      transporterId,
+      shipmentId: this.selectedShipment.id
     };
+     console.log('Current user (from token):', this.authService.currentUserValue);
+     console.log('ReviewRequest:', newReviewRequest);
 
-    this.reviewService.addReview(newReview).subscribe({
+    this.reviewService.addReview(newReviewRequest).subscribe({
       next: () => {
         alert('Review submitted successfully!');
-        this.router.navigate(['/home']);
+        // Retirer l’expédition localement
+        this.shipments = this.shipments.filter(s => s.id !== this.selectedShipment?.id);
+        this.selectedShipment = undefined;
+        this.reviewForm.reset({ rating: 0, comment: '' });
       },
       error: (err) => {
+        console.error('Error submitting review:', err);
         alert('Failed to submit review: ' + (err?.error?.message || 'Unknown error'));
       },
-      complete: () => (this.submitting = false)
+      complete: () => {
+        this.submitting = false;
+      }
     });
   }
+
+
+
 }

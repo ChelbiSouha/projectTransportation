@@ -10,7 +10,7 @@ public class Quote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double price;
+    private Double estimatedPrice; // system-generated estimated price
     private LocalDateTime date;
 
     private Boolean clientApproved = false;
@@ -26,8 +26,8 @@ public class Quote {
 
     public Quote() {}
 
-    public Quote(Double price, LocalDateTime date, Shipment shipment, Transporter transporter) {
-        this.price = price;
+    public Quote(Double estimatedPrice, LocalDateTime date, Shipment shipment, Transporter transporter) {
+        this.estimatedPrice = estimatedPrice;
         this.date = date;
         this.shipment = shipment;
         this.transporter = transporter;
@@ -37,52 +37,48 @@ public class Quote {
         return id;
     }
 
-    public Double getPrice() {
-        return price;
+    public Double getEstimatedPrice() {
+        return estimatedPrice;
+    }
+
+    public void setEstimatedPrice(Double estimatedPrice) {
+        this.estimatedPrice = estimatedPrice;
     }
 
     public LocalDateTime getDate() {
         return date;
     }
 
-    public Boolean getClientApproved() {
-        return clientApproved;
-    }
-
-    public Boolean getTransporterApproved() {
-        return transporterApproved;
-    }
-
-    public Shipment getShipment() {
-        return shipment;
-    }
-
-    public Transporter getTransporter() {
-        return transporter;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public Boolean getClientApproved() {
+        return clientApproved;
     }
 
     public void setClientApproved(Boolean clientApproved) {
         this.clientApproved = clientApproved;
     }
 
+    public Boolean getTransporterApproved() {
+        return transporterApproved;
+    }
+
     public void setTransporterApproved(Boolean transporterApproved) {
         this.transporterApproved = transporterApproved;
     }
 
+    public Shipment getShipment() {
+        return shipment;
+    }
+
     public void setShipment(Shipment shipment) {
         this.shipment = shipment;
+    }
+
+    public Transporter getTransporter() {
+        return transporter;
     }
 
     public void setTransporter(Transporter transporter) {
@@ -93,7 +89,7 @@ public class Quote {
     public String toString() {
         return "Quote{" +
                 "id=" + id +
-                ", price=" + price +
+                ", estimatedPrice=" + estimatedPrice +
                 ", date=" + date +
                 ", clientApproved=" + clientApproved +
                 ", transporterApproved=" + transporterApproved +

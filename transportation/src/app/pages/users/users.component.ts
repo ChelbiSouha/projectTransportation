@@ -1,47 +1,95 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ShipmentService } from 'src/app/services/shipment.service';
+import { Shipment } from 'src/app/models/shipment.model';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { Notification } from 'src/app/models/notification.model';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent {
-  user = { name: 'John Doe' };
-      activeShipmentsCount = 3;  // Example static data
-      pastShipmentsCount = 2;    // Example static data
-      pendingShipmentsCount = 1; // Example static data
-      shipments = [              // Example static data
-        { id: '1', pickupLocation: 'Tunis', dropoffLocation: 'Sousse', date: new Date(), status: 'Active' },
-        { id: '2', pickupLocation: 'Ariana', dropoffLocation: 'Sfax', date: new Date(), status: 'Delivered' },
-        { id: '3', pickupLocation: 'Nabeul', dropoffLocation: 'Djerba', date: new Date(), status: 'Pending' },
-      ];
+export class UsersComponent implements OnInit {
+  user: any;
+  shipments: Shipment[] = [];
+  notifications: Notification[] = [];
+  showNotifications = false;
+  activeShipmentsCount = 0;
+  pastShipmentsCount = 0;
+  pendingShipmentsCount = 0;
 
-      constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private shipmentService: ShipmentService,
+    private authService: AuthService,
+    private notificationService: NotificationService
+  ) {}
 
-        ngOnInit(): void {
-          // No need to load data from the service anymore
-        }
+  ngOnInit(): void {
+    this.user = this.authService.getCurrentUser();
 
-        // These methods are placeholders for your buttons, and they can be empty for now
-        logout() {
-          console.log('Logout');
-        }
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.loadUserShipments(userId);
+      this.loadUserNotifications(userId);
+    }
+  }
+  loadUserNotifications(userId: number): void {
+      this.notificationService.getNotifications().subscribe({
+        next: (data: Notification[]) => {
+          this.notifications = data;
+        },
+        error: (err) => console.error('Error loading notifications', err)
+      });
+    }
+  markAsRead(notificationId?: number): void {
+    if (!notificationId) return;
+    this.notificationService.markAsRead(notificationId).subscribe({
+      next: () => {
+        const notif = this.notifications.find(n => n.id === notificationId);
+        if (notif) notif.read = true;
+      },
+      error: (err) => console.error('Failed to mark notification as read', err)
+    });
+  }
 
-        addShipment() {
-          console.log('Add Shipment');
-        }
+  loadUserShipments(userId: number): void {
+    this.shipmentService.getShipmentsByUserId(userId).subscribe({
+      next: (data: Shipment[]) => {
+        this.shipments = data;
 
-        trackShipment() {
-          console.log('Track Shipment');
-        }
+        this.activeShipmentsCount = data.filter(s => s.status.toLowerCase() === 'active').length;
+        this.pastShipmentsCount = data.filter(s => s.status.toLowerCase() === 'delivered' || s.status.toLowerCase() === 'completed').length;
+        this.pendingShipmentsCount = data.filter(s => s.status.toLowerCase() === 'pending').length;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des expéditions :', err);
+      }
+    });
+  }
 
-        viewShipmentDetails(id: string) {
-          console.log(`Viewing details for shipment ${id}`);
-        }
-       goToShipmentPage(): void {
-          // Redirect to the shipment page
-          this.router.navigate(['/home/shipment']);
-        }
+  logout() {
+    this.authService.logout();
+  }
 
+  addShipment() {
+    this.router.navigate(['/home/step1']);
+  }
+
+  trackShipment() {
+    console.log('Track Shipment');
+  }
+
+ viewShipmentDetails(id: number): void {
+   this.router.navigate(['/shipment', id]);
+ }
+
+ toggleNotifications(): void {
+     this.showNotifications = !this.showNotifications;
+   }
+  goToShipmentPage(): void {
+    this.router.navigate(['/home/shipment']);
+  }
 }

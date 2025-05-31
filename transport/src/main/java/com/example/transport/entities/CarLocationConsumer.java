@@ -14,14 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * <H3>
- * CarLocationConsumer
- * </H3>
- *
- * @author manhvud
- * @since 2023/11/16
- */
 @Component
 public class CarLocationConsumer {
 

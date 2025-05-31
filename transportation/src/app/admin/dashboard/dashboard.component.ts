@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
 import { AdmindashboardService } from 'src/app/services/admindashboard.service';
+import { AuthService } from 'src/app/services/auth-service.service';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +16,7 @@ export class DashboardComponent implements OnInit {
     pendingTransporters: 0,
     reviews: 0
   };
-
+  user: any;
   public barChartType: ChartType = 'bar';
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
@@ -27,9 +29,10 @@ export class DashboardComponent implements OnInit {
   };
   public barChartOptions: ChartOptions<'bar'> = { responsive: true };
 
-  constructor(private admindashboardService: AdmindashboardService) {}
+  constructor(private admindashboardService: AdmindashboardService,private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.user = this.authService.getCurrentUser();
     this.admindashboardService.getStats().subscribe((data) => {
       this.stats = {
         users: data['users'],

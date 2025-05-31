@@ -46,6 +46,9 @@ import { ShipmentStep1Component } from './pages/shipment-step1/shipment-step1.co
 import { ShipmentStep2Component } from './pages/shipment-step2/shipment-step2.component';
 import { ShipmentStep3Component } from './pages/shipment-step3/shipment-step3.component';
 import { ShipmentListComponent } from './pages/shipment-list/shipment-list.component';
+import { RegisterAdminComponent } from './admin/register-admin/register-admin.component';
+import { ShipmentTrackingComponent } from './pages/shipment-tracking/shipment-tracking.component';
+import { ChatbotComponent } from './chatbot/chatbot.component';
 
 
 @NgModule({
@@ -81,6 +84,9 @@ import { ShipmentListComponent } from './pages/shipment-list/shipment-list.compo
     ShipmentStep2Component,
     ShipmentStep3Component,
     ShipmentListComponent,
+    RegisterAdminComponent,
+    ShipmentTrackingComponent,
+    ChatbotComponent,
   ],
   imports: [
     BrowserModule,

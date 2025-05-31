@@ -1,19 +1,13 @@
 package com.example.transport.controller;
 
 import com.example.transport.entities.User;
-import com.example.transport.repository.ReviewRepository;
-import com.example.transport.repository.ShipmentRepository;
-import com.example.transport.repository.TransporterRepository;
-import com.example.transport.repository.UserRepository;
+import com.example.transport.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.transport.entities.*;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin-dashboard")
@@ -24,6 +18,7 @@ public class AdminDashboardController {
     @Autowired private ShipmentRepository shipmentRepository;
     @Autowired private TransporterRepository transporterRepository;
     @Autowired private ReviewRepository reviewRepository;
+    @Autowired private NotificationRepository notificationRepository;
 
     @GetMapping("/stats")
     public Map<String, Long> getDashboardStats() {
@@ -42,6 +37,12 @@ public class AdminDashboardController {
             if (transporter != null) {
                 transporter.setApproved(true);
                 transporterRepository.save(transporter);
+                Notification notif = new Notification(
+                        userId,
+                        "TRANSPORTER_APPLICATION_APPROVED",
+                        "Your transporter application has been approved."
+                );
+                notificationRepository.save(notif);
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Transporter approved.");
                 return ResponseEntity.ok(response);
@@ -57,12 +58,40 @@ public class AdminDashboardController {
         if (userOpt.isPresent() && userOpt.get().getRole() == Role.TRANSPORTER) {
             Transporter transporter = userOpt.get().getTransporter();
             if (transporter != null) {
+                Notification notif = new Notification(
+                        userId,
+                        "TRANSPORTER_APPLICATION_REJECTED",
+                        "Your transporter application has been rejected."
+                );
+                notificationRepository.save(notif);
                 transporterRepository.delete(transporter);
             }
             userRepository.delete(userOpt.get());
             return ResponseEntity.ok("Transporter rejected and user deleted.");
         }
         return ResponseEntity.badRequest().body("User not found or not a transporter.");
+    }
+    @GetMapping("/check-low-rated-transporters")
+    public ResponseEntity<String> checkLowRatedTransporters() {
+        List<Transporter> transporters = transporterRepository.findAll();
+        Optional<User> adminOpt = userRepository.findFirstByRole(Role.ADMIN);
+        if (adminOpt.isEmpty()) return ResponseEntity.badRequest().body("No admin found.");
+
+        User admin = adminOpt.get();
+
+        for (Transporter t : transporters) {
+            Double avg = reviewRepository.getAverageRatingByTransporterId(t.getId());
+            if (avg != null && avg < 2.5) {
+                Notification notif = new Notification(
+                        admin.getId(),
+                        "LOW_AVG_REVIEW",
+                        "Transporter " + t.getUser().getUsername() + " has an average review below 2.5."
+                );
+                notificationRepository.save(notif);
+            }
+        }
+
+        return ResponseEntity.ok("Notifications for low-rated transporters sent.");
     }
 
     @GetMapping("/shipments-per-week")

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ShipmentService } from '../../services/shipment.service';
+import { QuoteService } from '../../services/quote.service';
 import { Router } from '@angular/router';
-import { FormDataService } from '../../services/form-data.service'; // ✅ import this service
+import { FormDataService } from '../../services/form-data.service';
+ import { Quote } from '../../models/quote.model';
 
 @Component({
   selector: 'app-shipment-step3',
@@ -24,6 +26,7 @@ export class ShipmentStep3Component implements OnInit {
   constructor(
     private fb: FormBuilder,
     private shipmentService: ShipmentService,
+    private quoteService: QuoteService,
     private formDataService: FormDataService, // ✅ inject FormDataService
     private router: Router
   ) {
@@ -50,25 +53,42 @@ export class ShipmentStep3Component implements OnInit {
     this.estimatedPrice = (distance * 1.0) + (weight * 0.2);
   }
 
-  onConfirm() {
-    console.log('Confirm and Publish clicked');
-    const quote = this.form.value.customQuote || this.estimatedPrice;
+ onConfirm() {
+   const proposedPrice = this.form.value.customQuote || this.estimatedPrice;
 
-    const shipment = {
-      ...this.shipmentSummary,
-      proposedPrice: quote,
-      status: 'Pending'
-    };
-    console.log('Sending to backend:', shipment);
-    this.shipmentService.addShipment(shipment).subscribe(
-      (response) => {
-        console.log('Shipment published successfully:', response);
-        this.formDataService.resetShipmentData(); // ✅ correct method name
-        this.router.navigate(['/home/list']);
-      },
-      (error) => {
-        console.error('Error publishing shipment:', error);
-      }
-    );
-  }
+   const shipment = {
+     ...this.shipmentSummary,
+     proposedPrice: proposedPrice,
+     status: 'Pending'
+   };
+
+   this.shipmentService.addShipment(shipment).subscribe(
+     (createdShipment) => {
+       console.log('Shipment created:', createdShipment);
+
+       const quote: Quote = {
+         estimatedPrice: this.estimatedPrice,
+         date: new Date().toISOString(),
+         shipment: createdShipment,
+         transporter: null  // transporter is null here
+       };
+
+       this.quoteService.addQuote(quote).subscribe(
+         (createdQuote) => {
+           console.log('Quote created:', createdQuote);
+           this.formDataService.resetShipmentData();
+           this.router.navigate(['/home/list']);
+         },
+         (error) => {
+           console.error('Error creating quote:', error);
+         }
+       );
+     },
+     (error) => {
+       console.error('Error creating shipment:', error);
+     }
+   );
+ }
+
+
 }

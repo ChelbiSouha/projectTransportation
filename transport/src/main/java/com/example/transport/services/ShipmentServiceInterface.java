@@ -20,5 +20,6 @@ public interface ShipmentServiceInterface {
     List<Shipment> getShipmentsByUserId(Long userId);
     List<Shipment> searchShipmentsByLocation(String keyword);
     List<Shipment> getShipmentsByStatus(String status);
+    Shipment markAsDelivered(Long shipmentId);
 
 }

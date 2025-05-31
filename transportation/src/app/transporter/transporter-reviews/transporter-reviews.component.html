@@ -44,7 +44,7 @@
     <!-- Welcome Bar (always at the top of content) -->
     <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
       <div>
-        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter.user.username }}!</h3>
+        <h3 class="text-3xl font-bold mb-1">Welcome, {{ transporter?.user?.username }}</h3>
         <p class="text-sm text-blue-100">Ready to manage your shipments today?</p>
       </div>
       <div class="flex items-center space-x-6">
@@ -93,7 +93,7 @@
         <div *ngFor="let review of reviews" class="border rounded-lg p-4 shadow-sm">
           <div class="flex justify-between items-center">
             <div>
-             <!-- <h3 class="text-lg font-semibold text-gray-700">{{ review.shipmentTitle }}</h3>-->
+              <!-- <h3 class="text-lg font-semibold text-gray-700">{{ review.shipmentTitle }}</h3>-->
               <p class="text-sm text-gray-500">Client: {{ review.user.username }}</p>
               <p class="text-sm text-gray-500">Rating:
                 <span class="font-semibold text-yellow-500">{{ review.rating }} / 5</span>

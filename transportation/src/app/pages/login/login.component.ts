@@ -27,7 +27,14 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.authService.login(this.username, this.password).subscribe({
       next: () => {
-        this.router.navigate(['/home']);
+        const user = this.authService.getCurrentUser();
+        if (user.role === 'ADMIN') {
+          this.router.navigate(['/admin/dashboard']);
+        } else if (user.role === 'TRANSPORTEUR') {
+          this.router.navigate(['/transporter/dashboard']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error: (error: any) => {
         this.error = 'Login failed. Please try again!';

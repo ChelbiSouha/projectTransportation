@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Review } from '../models/review.model';
+import { ReviewRequest } from '../models/review-request.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -18,8 +19,8 @@ export class ReviewService {
     return throwError(() => new Error('Something went wrong; please try again later.'));
   }
 
-  addReview(review: Review): Observable<Review> {
-    return this.http.post<Review>(`${this.apiUrl}/add`, review)
+  addReview(reviewRequest: ReviewRequest): Observable<Review> {
+    return this.http.post<Review>(`${this.apiUrl}/add`, reviewRequest)
       .pipe(catchError(this.handleError));
   }
 
