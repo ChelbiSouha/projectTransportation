@@ -1,58 +1,73 @@
-<div class="container p-4 max-w-xl mx-auto">
-  <h2 class="text-xl font-bold text-blue-600 mb-4">Leave a Review</h2>
+<div class="container max-w-2xl mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold text-blue-600 mb-6 border-b pb-2">Leave a Review</h2>
 
-  <div *ngIf="shipments.length === 0" class="text-gray-500">
+  <div *ngIf="shipments.length === 0" class="alert alert-info">
     You have no shipments ready for review.
   </div>
 
-  <div *ngFor="let shipment of shipments" class="mb-4 border p-3 rounded shadow">
-    <h3 class="text-lg font-semibold">{{ shipment.title }}</h3>
-    <p class="text-sm text-gray-600">Delivered to: {{ shipment.dropoffLocation }}</p>
-    <button
-      class="btn btn-primary mt-2"
-      (click)="selectShipment(shipment)"
-      [disabled]="submitting || (selectedShipment && selectedShipment.id === shipment.id)"
-    >
-      {{ selectedShipment && selectedShipment.id === shipment.id ? 'Selected' : 'Review' }}
-    </button>
+  <div *ngFor="let shipment of shipments" class="card mb-4 shadow-sm border rounded-lg">
+    <div class="card-body">
+      <h5 class="card-title text-lg font-semibold text-gray-800">{{ shipment.title }}</h5>
+      <p class="text-sm text-muted">Delivered to: {{ shipment.dropoffLocation }}</p>
+      <button
+        class="btn btn-outline-primary mt-3"
+        (click)="selectShipment(shipment)"
+        [disabled]="submitting || (selectedShipment?.id === shipment.id)"
+      >
+        {{ selectedShipment?.id === shipment.id ? 'Selected' : 'Review' }}
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="selectedShipment" class="mt-6">
-    <h3 class="text-lg font-semibold mb-4">
-      Review for {{ selectedShipment?.confirmedTransporter?.user?.username || 'Unknown' }}
+  <div *ngIf="selectedShipment" class="card mt-6 p-4 shadow-sm border rounded-lg">
+    <h3 class="text-lg font-semibold text-blue-800 mb-4">
+      Review for {{ selectedShipment.confirmedTransporter?.user?.username || 'Unknown' }}
     </h3>
 
     <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" novalidate>
+      <!-- Rating -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-blue-700">Rating (1-5)</label>
-        <input
-          type="number"
-          formControlName="rating"
-          min="1"
-          max="5"
-          class="form-input w-full mt-1"
-          [class.border-red-500]="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched"
-          [disabled]="submitting"
-        />
-        <div *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched" class="text-red-500 text-sm">
-          Rating is required (between 1 and 5).
+        <label class="form-label text-sm text-blue-700">Rating</label>
+        <div class="flex space-x-1">
+          <ng-container *ngFor="let star of [1,2,3,4,5]">
+            <button
+              type="button"
+              class="text-2xl p-0 bg-transparent border-none focus:outline-none"
+              (click)="setRating(star)"
+              (mouseenter)="hovered = star"
+              (mouseleave)="hovered = 0"
+            >
+              <span
+                [class.text-yellow-400]="star <= (hovered || reviewForm.get('rating')?.value)"
+                [class.text-gray-300]="star > (hovered || reviewForm.get('rating')?.value)"
+              >★</span>
+            </button>
+          </ng-container>
+        </div>
+        <div *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched"
+             class="form-text text-danger">
+          Rating is required.
         </div>
       </div>
 
+      <!-- Comment -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-blue-700">Comment</label>
+        <label for="comment" class="form-label text-sm text-blue-700">Comment</label>
         <textarea
           formControlName="comment"
+          id="comment"
           rows="4"
-          class="form-textarea w-full mt-1"
-          [class.border-red-500]="reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched"
+          class="form-control"
+          [class.border-danger]="reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched"
           [disabled]="submitting"
         ></textarea>
-        <div *ngIf="reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched" class="text-red-500 text-sm">
+        <div *ngIf="reviewForm.get('comment')?.invalid && reviewForm.get('comment')?.touched"
+             class="form-text text-danger">
           Comment is required.
         </div>
       </div>
 
+      <!-- Submit -->
       <button
         type="submit"
         class="btn btn-success"

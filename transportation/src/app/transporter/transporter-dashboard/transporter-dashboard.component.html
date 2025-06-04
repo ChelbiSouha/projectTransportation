@@ -20,14 +20,6 @@
         </a>
       </li>
       <li>
-        <a routerLink="/completed-shipments"
-           class="block px-3 py-2 rounded transition duration-200"
-           [ngClass]="{'bg-indigo-500': isActive('completedShipments')}"
-           (click)="setActive('completedShipments')">
-          <i class="fas fa-check-circle mr-2"></i> Completed Shipments
-        </a>
-      </li>
-      <li>
         <a routerLink="/transporter-reviews"
            class="block px-3 py-2 rounded transition duration-200"
            [ngClass]="{'bg-indigo-500': isActive('reviews')}"
@@ -51,8 +43,7 @@
     <!-- Welcome Bar -->
     <div class="flex max-w-5xl justify-between bg-gradient-to-r from-violet-600 to-blue-600 text-white px-8 py-6 rounded-xl mb-6 shadow">
       <div>
-        <h3 class="text-3xl font-bold mb-1">Welcome, <span>{{ transporter?.user?.username }}
-</span></h3>
+        <h3 class="text-3xl font-bold mb-1">Welcome, <span>{{ transporter?.user?.username }}</span></h3>
         <p class="text-sm text-blue-100">Ready to manage your shipments today?</p>
       </div>
       <div class="flex items-center space-x-6">
@@ -101,7 +92,7 @@
         <p class="text-2xl">{{ activeShipments }}</p>
       </div>
       <div class="bg-white p-4 rounded-xl shadow text-center">
-        <p class="text-lg font-bold">📦 Pending Shipments</p>
+        <p class="text-lg font-bold">📦 Completed Shipments</p>
         <p class="text-2xl">{{ pendingShipments }}</p>
       </div>
       <div class="bg-white p-4 rounded-xl shadow text-center">
@@ -110,12 +101,12 @@
       </div>
       <div class="bg-white p-4 rounded-xl shadow text-center">
         <p class="text-lg font-bold">💰 Earnings</p>
-        <p class="text-2xl">{{ earnings }}</p>
+        <p class="text-2xl">{{ earnings | currency:'USD':'symbol' }}</p>
       </div>
     </div>
 
     <!-- Feedback -->
-    <div class="bg-white p-4 rounded-xl shadow mt-6">
+    <div class="bg-white p-4 rounded-xl shadow mt-6 max-w-3xl">
       <h3 class="text-xl font-semibold mb-4">📝 Latest Feedback</h3>
       <div *ngIf="latestFeedback">
         <p><strong>{{ latestFeedback.userName }}:</strong> "{{ latestFeedback.comment }}"</p>
@@ -125,5 +116,19 @@
         No feedback yet.
       </div>
     </div>
+
+    <!-- Update Location -->
+    <div class="p-4 border rounded shadow-md w-full max-w-md mx-auto mt-6">
+      <h3 class="text-xl font-semibold mb-2">Update Your Location</h3>
+      <div id="map" style="height: 300px;" leaflet
+           [leafletOptions]="options"
+           (leafletMapReady)="onMapReady($event)"
+           (leafletClick)="onMapClick($event)">
+      </div>
+      <button (click)="updateLocation()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+        Save Location
+      </button>
+    </div>
+
   </div>
 </div>

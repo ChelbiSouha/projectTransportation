@@ -23,13 +23,14 @@ public class ReviewController {
     public ResponseEntity<?> addReview(@Valid @RequestBody ReviewRequest reviewDTO) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String email = auth.getName();
-            Review createdReview = reviewService.addReview(reviewDTO, email);
+            String username = auth.getName();
+            Review createdReview = reviewService.addReview(reviewDTO, username);
             return ResponseEntity.ok(createdReview);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @GetMapping("/all")
     public ResponseEntity<List<Review>> getAllReviews() {

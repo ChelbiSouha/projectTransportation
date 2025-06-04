@@ -12,13 +12,14 @@ export class UploadService {
 
   constructor(private http: HttpClient) { }
 
+  // Upload un seul fichier et retourne HttpEvent pour tracking (progression)
   upload(files: File[]): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
-
-    // You need to send ONE file per request (unless you change your backend)
-    if (files.length > 0) {
-      formData.append('file', files[0], files[0].name); // send one file at a time
+    if (files.length === 0) {
+      throw new Error('No file provided');
     }
+
+    formData.append('file', files[0], files[0].name);
 
     const req = new HttpRequest('POST', `${this.baseUrl}/upload`, formData, {
       reportProgress: true,
@@ -28,3 +29,17 @@ export class UploadService {
     return this.http.request(req);
   }
 
+  // Upload plusieurs fichiers et retourne les URL des fichiers
+  uploadMultiple(files: File[]): Observable<string[]> {
+    const formData: FormData = new FormData();
+    if (files.length === 0) {
+      throw new Error('No files provided');
+    }
+
+    for (const file of files) {
+      formData.append('files', file, file.name);
+    }
+
+    return this.http.post<string[]>(`${this.baseUrl}/upload-multiple`, formData);
+  }
+}

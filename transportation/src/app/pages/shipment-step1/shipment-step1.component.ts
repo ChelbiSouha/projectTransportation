@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ShipmentService } from '../../services/shipment.service';
-import { FormDataService } from '../../services/form-data.service'; // ✅ New import
+import { FormDataService } from '../../services/form-data.service';
+import { AuthService } from '../../services/auth-service.service';
 import { Router } from '@angular/router';
+import { UploadService } from '../../services/upload.service';
 
 @Component({
   selector: 'app-shipment-step1',
@@ -23,7 +25,9 @@ export class ShipmentStep1Component {
   constructor(
     private fb: FormBuilder,
     private shipmentService: ShipmentService,
-    private formDataService: FormDataService, // ✅ Inject service
+    private formDataService: FormDataService,
+    private authService: AuthService,
+    private uploadService: UploadService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -41,31 +45,37 @@ export class ShipmentStep1Component {
     const files: File[] = Array.from(fileList).slice(0, 7);
 
     this.imagePreviews = [];
-    const validFiles: File[] = [];
+    const uploadedUrls: string[] = [];
 
-    for (let file of files) {
-      if (file instanceof File) {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.imagePreviews.push(e.target.result);
-        };
-        reader.readAsDataURL(file);
-        validFiles.push(file);
-      }
+    if (files.length > 0) {
+      this.uploadService.uploadMultiple(files).subscribe({
+        next: (urls: any) => {
+          this.form.get('images')?.setValue(urls);
+          urls.forEach((url: string) => {
+            this.imagePreviews.push(url);
+          });
+        },
+        error: (err) => {
+          console.error('Upload failed', err);
+        }
+      });
     }
-
-    const fakeUrls = validFiles.map((f, i) => `image_${Date.now()}_${i}.jpg`);
-    this.form.get('images')?.setValue(fakeUrls);
   }
+
 
   onNext() {
     if (this.form.valid) {
+      const userId = this.authService.getCurrentUserId();
+          if (!userId) {
+            console.error('User not authenticated');
+            return;
+          }
       const shipmentData = {
         ...this.form.value,
         pickupLocation: '',
         dropoffLocation: '',
         status: 'Pending',
-        user: { id: 1 } // Simulated user
+        user: { id: userId } // Simulated user
       };
        shipmentData.weight = parseFloat(shipmentData.weight);
       this.formDataService.setShipmentData(shipmentData); // ✅ Save locally

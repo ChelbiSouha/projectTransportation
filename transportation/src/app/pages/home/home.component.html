@@ -21,7 +21,7 @@
           <p class="feature-paragraph my-5" style="color: black;">
 
           </p>
-          <a routerLink="/home/step1" class="btn btn-outline-primary second-button">Find a Transporter</a>
+          <button (click)="onFindTransporter()" class="btn btn-outline-primary second-button">Find a Transporter</button>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@
         <h1 class="action-heading py-2">Ready to book your shipment?</h1>
         <p class="action-paragraph my-3">Create an account to book. It only takes a few steps!</p>
         <button type="button" class="btn btn-primary first-button action-button my-4" data-bs-toggle="modal"
-                routerLink="/login">Create Account</button>
+                routerLink="/register">Create Account</button>
       </div>
     </div>
   </section>

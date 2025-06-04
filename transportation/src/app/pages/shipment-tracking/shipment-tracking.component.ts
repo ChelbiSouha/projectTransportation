@@ -32,7 +32,7 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   }
 
   private initMap(): void {
-    this.map = L.map('map').setView([34.0, 9.0], 6); // Centré sur la Tunisie
+    this.map = L.map('map').setView([34.0, 9.0], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -47,13 +47,15 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
       reconnectDelay: 5000,
     });
 
-    this.stompClient.onConnect = (frame) => {
-      this.stompClient.subscribe('/topic/car-location', (message: IMessage) => {
-        const location: CarLocationUpdate = JSON.parse(message.body);
-        this.updateMarker(location);
-      });
-    };
-
+   this.stompClient.onConnect = (frame) => {
+     console.log('WebSocket connected:', frame);
+     this.stompClient.subscribe('/topic/car-location', (message: IMessage) => {
+       console.log('Received message:', message.body);
+       const location: CarLocationUpdate = JSON.parse(message.body);
+       console.log('Parsed location:', location);
+       this.updateMarker(location);
+     });
+   };
     this.stompClient.onStompError = (frame) => {
       console.error('Broker reported error: ' + frame.headers['message']);
       console.error('Additional details: ' + frame.body);
@@ -62,16 +64,18 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     this.stompClient.activate();
   }
 
-  private updateMarker(location: CarLocationUpdate): void {
-    const existingMarker = this.markers.get(location.carId);
+ private updateMarker(location: CarLocationUpdate): void {
+   const existingMarker = this.markers.get(location.carId);
 
-    if (existingMarker) {
-      existingMarker.setLatLng([location.latitude, location.longitude]);
-    } else {
-      const marker = L.marker([location.latitude, location.longitude])
-        .addTo(this.map)
-        .bindPopup(`Car: ${location.carId}`);
-      this.markers.set(location.carId, marker);
-    }
-  }
+   if (existingMarker) {
+     existingMarker.setLatLng([location.latitude, location.longitude]);
+   } else {
+     const marker = L.marker([location.latitude, location.longitude])
+       .addTo(this.map)
+       .bindPopup(`Car: ${location.carId}`);
+     this.markers.set(location.carId, marker);
+   }
+ }
+
+
 }

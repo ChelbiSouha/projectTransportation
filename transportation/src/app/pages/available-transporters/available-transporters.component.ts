@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ShipmentRequestService } from 'src/app/services/shipment-request.service';
 import { ShipmentService } from 'src/app/services/shipment.service';
-import { ShipmentRequest } from 'src/app/models/shipment-request.model'; // si tu en as un
+import { ShipmentRequest } from 'src/app/models/shipment-request.model';
 import { Transporter } from 'src/app/models/transporter.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-available-transporters',
@@ -10,21 +11,29 @@ import { Transporter } from 'src/app/models/transporter.model';
   styleUrls: ['./available-transporters.component.css']
 })
 export class AvailableTransportersComponent implements OnInit {
-
-  shipmentId = 3; // TODO: Dynamiser dans le vrai projet
   shipmentRequests: any[] = [];
   loading = false;
   errorMessage = '';
 
   constructor(
     private shipmentRequestService: ShipmentRequestService,
-    private shipmentService: ShipmentService
+    private shipmentService: ShipmentService,
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    this.loadShipmentRequests();
-  }
+  shipmentId!: number;
 
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const idParam = params.get('id');
+      if (idParam) {
+        this.shipmentId = +idParam;
+        this.loadShipmentRequests();
+      } else {
+        this.errorMessage = 'Aucun ID d\'expédition fourni.';
+      }
+    });
+  }
   loadShipmentRequests(): void {
     this.loading = true;
     this.shipmentRequestService.getRequestsByShipment(this.shipmentId).subscribe({

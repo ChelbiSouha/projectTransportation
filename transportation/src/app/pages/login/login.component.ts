@@ -30,10 +30,10 @@ export class LoginComponent implements OnInit {
         const user = this.authService.getCurrentUser();
         if (user.role === 'ADMIN') {
           this.router.navigate(['/admin/dashboard']);
-        } else if (user.role === 'TRANSPORTEUR') {
-          this.router.navigate(['/transporter/dashboard']);
+        } else if (user.role === 'TRANSPORTER') {
+          this.router.navigate(['/dashboard-transporter']);
         } else {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/home/users']);
         }
       },
       error: (error: any) => {

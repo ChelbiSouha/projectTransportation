@@ -36,14 +36,14 @@ const routes: Routes = [
       { path: 'acceuil', component: HomeComponent },
       { path: 'users', component: UsersComponent },
       { path: '', redirectTo: '/home/acceuil', pathMatch: 'full' },
-      { path: 'available-transporters', component: AvailableTransportersComponent },
+      { path: 'available-transporters/:id', component: AvailableTransportersComponent },
       { path: 'step1',component: ShipmentStep1Component},
       { path: 'step2',component: ShipmentStep2Component},
       { path: 'step3',component: ShipmentStep3Component},
       { path: 'list',component: ShipmentListComponent},
       { path: 'review',component: UserReviewsComponent },
       {
-        path: 'track-shipment', // optional if you want to track a specific one
+        path: 'track-shipment',
         component: ShipmentTrackingComponent
       }
 

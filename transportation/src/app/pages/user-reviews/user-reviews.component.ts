@@ -27,6 +27,7 @@ export class UserReviewsComponent implements OnInit {
   };
   selectedShipment?: Shipment;
   submitting = false;
+  hovered = 0;
   reviewForm: FormGroup;
   constructor(
       private shipmentService: ShipmentService,
@@ -56,11 +57,15 @@ export class UserReviewsComponent implements OnInit {
     }
   }
 
+
+setRating(rating: number): void {
+  this.reviewForm.get('rating')?.setValue(rating);
+  this.reviewForm.get('rating')?.markAsTouched();
+}
+
   selectShipment(shipment: Shipment) {
     this.selectedShipment = shipment;
   }
-
-  // supprimer la propriété `review` si tu n’en as plus besoin
   submitReview() {
     if (!this.selectedShipment || !this.reviewForm.valid) return;
 

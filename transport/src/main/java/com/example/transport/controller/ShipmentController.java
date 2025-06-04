@@ -7,6 +7,9 @@ import com.example.transport.services.ShipmentServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +64,10 @@ public class ShipmentController {
         List<Shipment> results = shipmentService.searchShipmentsByLocation(location);
         return ResponseEntity.ok(results);
     }
-
+    @GetMapping("/confirmed-transporter/{transporterId}")
+    public List<Shipment> getConfirmedShipmentsForTransporter(@PathVariable Long transporterId) {
+        return shipmentService.getShipmentsByConfirmedTransporterId(transporterId);
+    }
     @PutMapping("/confirm-transporter/{shipmentId}/{transporterId}")
     public ResponseEntity<?> confirmTransporter(
             @PathVariable Long shipmentId,
@@ -80,6 +86,27 @@ public class ShipmentController {
     @GetMapping("/status/{status}")
     public List<Shipment> getShipmentsByStatus(@PathVariable String status) {
         return shipmentService.getShipmentsByStatus(status);
+    }
+    @PutMapping("/complete/{shipmentId}")
+    public ResponseEntity<?> markShipmentAsCompleted(@PathVariable Long shipmentId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            Shipment shipment = shipmentService.markAsCompletedByTransporter(shipmentId, username);
+
+            // ✅ Notification pour le client
+            Notification notifClient = new Notification(
+                    shipment.getUser().getId(),
+                    "SHIPMENT_COMPLETED",
+                    "Your shipment has been marked as completed by the transporter."
+            );
+            notificationRepository.save(notifClient);
+
+            return ResponseEntity.ok(shipment);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/mark-delivered/{shipmentId}")

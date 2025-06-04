@@ -61,5 +61,18 @@ confirmTransporter(shipmentId: number, transporterId: number): Observable<any> {
   return this.http.put<any>(`${this.baseUrl}/confirm-transporter/${shipmentId}/${transporterId}`, {})
     .pipe(catchError(this.handleError));
 }
+markShipmentAsCompleted(shipmentId: number): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/complete/${shipmentId}`, {})
+    .pipe(catchError(this.handleError));
+}
+
+markShipmentAsDelivered(shipmentId: number): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/mark-delivered/${shipmentId}`, {})
+    .pipe(catchError(this.handleError));
+}
+getConfirmedShipmentsForTransporter(transporterId: number): Observable<Shipment[]> {
+  return this.http.get<Shipment[]>(this.buildUrl(`/confirmed-transporter/${transporterId}`))
+    .pipe(catchError(this.handleError));
+}
 
 }

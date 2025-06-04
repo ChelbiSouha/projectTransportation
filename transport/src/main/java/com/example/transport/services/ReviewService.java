@@ -27,13 +27,9 @@ public class ReviewService {
     @Autowired
     private ShipmentRepository shipmentRepository;
 
-    public Review addReview(ReviewRequest reviewDTO, String email) {
-        // 1. Récupérer l'utilisateur connecté
-        User user = userRepository.findByEmail(email)
+    public Review addReview(ReviewRequest reviewDTO, String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        System.out.println("User fetched by email: " + user.getEmail() + ", id: " + user.getId());
-
-
         // 2. Récupérer le transporteur
         Transporter transporter = transporterRepository.findById(reviewDTO.getTransporterId())
                 .orElseThrow(() -> new IllegalArgumentException("Transporter not found"));

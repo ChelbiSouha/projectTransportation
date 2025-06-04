@@ -40,7 +40,7 @@ export class ShipmentStep3Component implements OnInit {
 
     if (!this.shipmentSummary) {
       // Optional: redirect if no data available (user landed here directly)
-      this.router.navigate(['/home/step1']);
+      this.router.navigate(['/home/users']);
       return;
     }
 

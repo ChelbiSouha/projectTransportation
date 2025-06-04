@@ -21,5 +21,9 @@ public interface ShipmentServiceInterface {
     List<Shipment> searchShipmentsByLocation(String keyword);
     List<Shipment> getShipmentsByStatus(String status);
     Shipment markAsDelivered(Long shipmentId);
+    Shipment markAsCompletedByTransporter(Long shipmentId, String username);
+    List<Shipment> getShipmentsByConfirmedTransporterId(Long transporterId);
+
+
 
 }

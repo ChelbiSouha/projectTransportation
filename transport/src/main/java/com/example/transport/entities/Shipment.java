@@ -32,6 +32,8 @@ public class Shipment {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "quote_id", referencedColumnName = "id")
     private Quote quote;
+    @Column(nullable = false)
+    private boolean reviewGiven = false;
 
     @PrePersist
     protected void onCreate() {
@@ -117,4 +119,12 @@ public class Shipment {
     public void setDistance(Double distance) {
         this.distance = distance;
     }
+    public boolean isReviewGiven() {
+        return reviewGiven;
+    }
+
+    public void setReviewGiven(boolean reviewGiven) {
+        this.reviewGiven = reviewGiven;
+    }
+
 }

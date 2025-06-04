@@ -80,8 +80,31 @@ public class ShipmentServiceImpl implements ShipmentServiceInterface {
     @Override
     public Shipment markAsDelivered(Long shipmentId) {
         Shipment shipment = getShipmentById(shipmentId);
-        shipment.setStatus("Delivered");
+        shipment.setStatus("COMPLETED");
         return shipmentRepository.save(shipment);
+    }
+    @Override
+    public Shipment markAsCompletedByTransporter(Long shipmentId, String username) {
+        Shipment shipment = getShipmentById(shipmentId);
+
+        if (!"CONFIRMED".equalsIgnoreCase(shipment.getStatus())) {
+            throw new IllegalStateException("Only confirmed shipments can be marked as completed.");
+        }
+
+        Transporter transporter = transporterRepository.findByUserUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Transporter not found for username: " + username));
+
+        if (shipment.getConfirmedTransporter() == null ||
+                !shipment.getConfirmedTransporter().getId().equals(transporter.getId())) {
+            throw new IllegalStateException("You are not authorized to complete this shipment.");
+        }
+
+        shipment.setStatus("COMPLETED");
+        return shipmentRepository.save(shipment);
+    }
+    @Override
+    public List<Shipment> getShipmentsByConfirmedTransporterId(Long transporterId) {
+        return shipmentRepository.findByConfirmedTransporterId(transporterId);
     }
 
 }

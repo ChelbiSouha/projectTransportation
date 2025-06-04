@@ -12,5 +12,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     List<Shipment> searchByLocation(@Param("keyword") String keyword);
     List<Shipment> findByUserId(Long userId);
     List<Shipment> findByStatus(String status);
+    List<Shipment> findByConfirmedTransporterId(Long transporterId);
+
 
 }

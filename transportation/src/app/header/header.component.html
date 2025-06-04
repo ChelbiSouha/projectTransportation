@@ -25,36 +25,20 @@
         <div class="offcanvas-body">
           <ul class="navbar-nav align-items-center flex-grow-1">
             <li class="nav-list mx-3">
-              <a href="index.html" class="nav-link active px-2">
-                <h5> Home </h5>
-              </a>
+              <a [routerLink]="'/home/acceuil'" class="nav-link px-2" aria-current="page"><h5>Home</h5></a>
             </li>
             <li class="nav-list mx-3">
-              <a href="#resources" class="nav-link px-2">
-                <h5> About </h5>
-              </a>
-            </li>
-            <li class="nav-list mx-3">
-              <a href="#services" class="nav-link px-2">
+              <a class="nav-link px-2" (click)="scrollToSection('services')">
                 <h5> Services </h5>
               </a>
             </li>
             <li class="nav-list mx-3">
-              <a href="#articles" class="nav-link px-2">
-                <h5> Blog </h5>
-              </a>
+              <a [routerLink]="'/home/users'" class="nav-link px-2"><h5>Shipment History</h5></a>
             </li>
             <li class="nav-list mx-3">
-              <a href="#contact" class="nav-link px-2">
-                <h5> Contact </h5>
-              </a>
+              <a [routerLink]="'/register-transporter'" class="nav-link px-2"><h5>Join as Transporter</h5></a>
             </li>
-            <li class="nav-list mx-3 dropdown text-center">
-              <a class="nav-link px-2 dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                 aria-expanded="false">
-                <h5> Pages <iconify-icon icon="ic:outline-arrow-drop-down"></iconify-icon> </h5>
-              </a>
-            </li>
+
           </ul>
           <!-- Place this at the end of your navbar, outside the ul -->
           <div class="d-flex align-items-center ms-auto">

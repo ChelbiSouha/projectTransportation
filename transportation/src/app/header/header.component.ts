@@ -23,4 +23,23 @@ export class HeaderComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+  scrollToSection(sectionId: string): void {
+      if (this.router.url === '/home/acceuil' || this.router.url.startsWith('/#')) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        this.router.navigate(['/home/acceuil']).then(() => {
+          setTimeout(() => {
+            const element = document.getElementById(sectionId);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 300); // délai pour laisser le temps à la page de charger
+        });
+      }
+
+}
+
 }

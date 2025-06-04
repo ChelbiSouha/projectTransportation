@@ -1,99 +1,161 @@
-<div class="user-dashboard">
-  <!-- Welcome Bar -->
-  <div class="user-greeting-bar compact">
-    <div class="greeting-text">
-      <h1><span class="colored-title">Welcome,</span> {{ user?.username }} 👋</h1>
-      <p>Here’s what’s happening with your shipments</p>
-    </div>
-    <div class="user-icons">
-      <!-- Bell icon clickable to toggle notifications -->
-      <i class="fas fa-bell" style="cursor:pointer" (click)="toggleNotifications()"></i>
+<div class="container mx-auto p-4">
 
-      <!-- User icon -->
-      <i class="fas fa-user-circle"></i>
+  <!-- Welcome + Notifications bar -->
+  <div class="d-flex justify-content-between items-center bg-primary text-white rounded-lg p-4 mb-6 shadow-md flex-wrap gap-3">
+    <div>
+      <h1 class="text-white text-2xl font-semibold">
+        <span class="text-blue-400">Welcome,</span> {{ user?.username }} 👋
+      </h1>
+      <p class="text-white/90">Here’s what’s happening with your shipments</p>
+    </div>
+
+    <div class="position-relative">
+      <button
+        class="btn btn-outline-light d-flex align-items-center gap-2"
+        (click)="toggleNotifications()"
+        aria-label="Toggle notifications"
+      >
+        <i class="fas fa-bell"></i>
+        <span *ngIf="notifications.length > 0" class="badge bg-danger rounded-pill">{{ notifications.length }}</span>
+      </button>
 
       <!-- Notifications Panel -->
-      <div class="notifications-panel" *ngIf="showNotifications">
-        <h3>Notifications ({{ notifications.length }})</h3>
-        <ul>
-          <li *ngFor="let notif of notifications" [class.read]="notif.read">
-            {{ notif.message }} <small>({{ notif.createdAt | date:'short' }})</small>
-            <button *ngIf="!notif.read" (click)="markAsRead(notif.id)">Mark as read</button>
+      <div
+        *ngIf="showNotifications"
+        class="position-absolute end-0 mt-2 p-3 bg-white shadow rounded w-80 max-w-[320px] z-50"
+        style="max-height: 300px; overflow-y: auto;"
+      >
+        <h5>Notifications ({{ notifications.length }})</h5>
+        <ul class="list-group list-group-flush">
+          <li *ngFor="let notif of notifications"
+              class="list-group-item d-flex justify-content-between align-items-center"
+              [ngClass]="{'text-muted': notif.read}">
+            <div>
+              {{ notif.message }}
+              <br />
+              <small class="text-secondary">{{ notif.createdAt | date:'short' }}</small>
+            </div>
+            <button *ngIf="!notif.read" class="btn btn-sm btn-link" (click)="markAsRead(notif.id)">Mark as read</button>
           </li>
-          <li *ngIf="notifications.length === 0">No notifications.</li>
+          <li *ngIf="notifications.length === 0" class="list-group-item text-center text-muted">
+            No notifications.
+          </li>
         </ul>
       </div>
     </div>
   </div>
 
-  <main class="dashboard-main">
-    <!-- Shipment Overview -->
-    <section class="shipment-overview">
-      <h2 class="section-title">📦 Shipment Overview</h2>
-      <div class="stats">
-        <div class="stat-card fancy-card">
-          <i class="fas fa-truck-moving icon"></i>
-          <div>
-            <h4>Active</h4>
-            <p>{{ activeShipmentsCount }}</p>
-          </div>
-        </div>
-        <div class="stat-card fancy-card">
-          <i class="fas fa-archive icon"></i>
-          <div>
-            <h4>Past</h4>
-            <p>{{ pastShipmentsCount }}</p>
-          </div>
-        </div>
-        <div class="stat-card fancy-card">
-          <i class="fas fa-hourglass-half icon"></i>
-          <div>
-            <h4>Pending</h4>
-            <p>{{ pendingShipmentsCount }}</p>
+  <!-- Shipment overview cards -->
+  <section class="row g-3 mb-6 text-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-4 border-primary rounded-lg hover:shadow-lg transition-shadow">
+        <i class="fas fa-truck-moving fa-3x text-primary mb-3"></i>
+        <h5>Active</h5>
+        <p class="fs-4 fw-bold">{{ activeShipmentsCount }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-4 border-success rounded-lg hover:shadow-lg transition-shadow">
+        <i class="fas fa-archive fa-3x text-success mb-3"></i>
+        <h5>Past</h5>
+        <p class="fs-4 fw-bold">{{ pastShipmentsCount }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-4 border-warning rounded-lg hover:shadow-lg transition-shadow">
+        <i class="fas fa-hourglass-half fa-3x text-warning mb-3"></i>
+        <h5>Pending</h5>
+        <p class="fs-4 fw-bold">{{ pendingShipmentsCount }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick action buttons -->
+  <section class="d-flex gap-3 mb-6 flex-wrap">
+    <button class="btn btn-primary flex-grow-1" (click)="goToShipmentPage()">➕ Add New Shipment</button>
+    <button class="btn btn-outline-primary flex-grow-1" (click)="trackShipment()">📍 Track Shipment</button>
+  </section>
+
+  <!-- Shipment cards grid -->
+  <section>
+    <h2 class="mb-4 fs-3">🚚 Your Shipments</h2>
+    <div class="row g-4">
+      <div
+        class="col-12 col-md-6 col-lg-4"
+        *ngFor="let shipment of shipments"
+      >
+        <div class="card h-100 shadow-sm rounded-lg">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title mb-2">Shipment #{{ shipment.id }}</h5>
+
+            <p class="mb-1"><strong>Pickup:</strong> {{ shipment.pickupLocation }}</p>
+            <p class="mb-1"><strong>Drop-off:</strong> {{ shipment.dropoffLocation }}</p>
+            <p class="mb-1"><strong>Date:</strong> {{ shipment.createdAt | date:'shortDate' }}</p>
+
+            <p class="mb-3">
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success': shipment.status.toLowerCase() === 'active',
+                  'bg-secondary': shipment.status.toLowerCase() === 'delivered' || shipment.status.toLowerCase() === 'completed',
+                  'bg-warning text-dark': shipment.status.toLowerCase() === 'pending',
+                  'bg-info': shipment.status.toLowerCase() === 'in progress'
+                }"
+              >
+                {{ shipment.status }}
+              </span>
+            </p>
+
+            <div class="mt-auto d-flex gap-2 flex-wrap">
+              <button
+                class="btn btn-outline-primary btn-sm flex-grow-1"
+                (click)="viewShipmentDetails(shipment.id)"
+              >
+                👁️ View
+              </button>
+              <button
+                class="btn btn-primary btn-sm flex-grow-1"
+                (click)="goToAvailableTransporters(shipment.id)"
+                [disabled]="!['pending', 'active'].includes(shipment.status.toLowerCase())"
+              >
+                🚛 Voir les transporteurs
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <button (click)="goToShipmentPage()">➕ Add New Shipment</button>
-      <button (click)="trackShipment()">📍 Track Shipment</button>
-    </section>
-
-    <!-- Shipment Table -->
-    <section class="shipment-table">
-      <h2 class="section-title">🚚 Your Shipments</h2>
-      <div class="table-container">
-        <table>
-          <thead>
-          <tr>
-            <th>#ID</th>
-            <th>Pickup</th>
-            <th>Drop-off</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let shipment of shipments">
-            <td>{{ shipment.id }}</td>
-            <td>{{ shipment.pickupLocation }}</td>
-            <td>{{ shipment.dropoffLocation }}</td>
-            <td>{{ shipment.createdAt | date: 'shortDate' }}</td>
-            <td>
-                <span class="status-badge {{ shipment.status.toLowerCase() }}">
-                  {{ shipment.status }}
-                </span>
-            </td>
-            <td>
-              <button (click)="viewShipmentDetails(shipment.id)">👁️ View</button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+    <!-- Modal for shipment details -->
+    <div
+      class="modal fade show d-block"
+      *ngIf="selectedShipment"
+      tabindex="-1"
+      role="dialog"
+      style="background: rgba(0,0,0,0.6);"
+      (click)="closeModal()"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered"
+        role="document"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-content p-4 rounded-lg shadow">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title">Shipment Details #{{ selectedShipment.id }}</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Pickup:</strong> {{ selectedShipment.pickupLocation }}</p>
+            <p><strong>Drop-off:</strong> {{ selectedShipment.dropoffLocation }}</p>
+            <p><strong>Status:</strong> {{ selectedShipment.status }}</p>
+            <p><strong>Date:</strong> {{ selectedShipment.createdAt | date:'short' }}</p>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+          </div>
+        </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 </div>

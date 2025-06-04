@@ -41,6 +41,9 @@ getPendingTransporters(): Observable<Transporter[]> {
  deleteTransporter(id: number): Observable<void> {
    return this.http.delete<void>(`${this.baseUrl}/delete/${id}`);
  }
+updateLocation(payload: { latitude: number; longitude: number }) {
+  return this.http.post('/updateLocation', payload); // ou API_URL + '/updateLocation' si nécessaire
+}
 
 
 }

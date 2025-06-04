@@ -1,0 +1,15 @@
+/* Simple styles */
+a:hover {
+  background-color: rgba(129, 140, 248, 0.7); /* Indigo-400 */
+  text-decoration: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Scrollbar for notifications dropdown if needed */
+div[ng-reflect-ng-if="true"] {
+  max-height: 250px;
+  overflow-y: auto;
+}

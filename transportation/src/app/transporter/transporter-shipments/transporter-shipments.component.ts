@@ -1,71 +1,81 @@
 import { Component, OnInit } from '@angular/core';
+import { ShipmentService } from '../../services/shipment.service';
+import { Shipment } from '../../models/shipment.model';
+import { AuthService } from '../../services/auth-service.service';
+import { NotificationService } from '../../services/notification.service';
+import { Notification } from '../../models/notification.model';
+import { TransporterService } from '../../services/transporter.service';
+import { Transporter } from '../../models/transporter.model';
 
 @Component({
   selector: 'app-transporter-shipments',
   templateUrl: './transporter-shipments.component.html',
 })
 export class TransporterShipmentsComponent implements OnInit {
-  transporter = {
-    name: 'John Doe',
-    email: 'johndoe@example.com'
-  };
-
-  shipments = [
-    {
-      id: 1,
-      title: 'Furniture Delivery',
-      pickupLocation: 'Tunis',
-      dropoffLocation: 'Sousse',
-      status: 'pending',
-      suggestedPrice: 40,
-      proposedPrice: 40,
-      showPropose: false
-    },
-    {
-      id: 2,
-      title: 'Electronics Transfer',
-      pickupLocation: 'Sfax',
-      dropoffLocation: 'Gabes',
-      status: 'in-progress',
-      suggestedPrice: 55,
-      proposedPrice: 55,
-      showPropose: false
-    },
-  ];
-
-
-  notifications = [
-    { title: 'New Shipment', message: 'You have a new pending shipment.' },
-    { title: 'Reminder', message: 'Don’t forget to update your availability.' },
-
-  ];
-
+  transporterId!: number;
+  shipments: Shipment[] = [];
+  notifications: Notification[] = [];
   showNotifications = false;
   showProfile = false;
   activeSection: string = 'activeShipments';
+  transporter!: Transporter;
 
-  ngOnInit(): void {}
+  constructor(
+    private shipmentService: ShipmentService,
+    private authService: AuthService,
+    private transporterService: TransporterService,
+    private notificationService: NotificationService
+  ) {}
 
-  acceptShipment(id: number) {
-    const shipment = this.shipments.find(s => s.id === id);
-    if (shipment) shipment.status = 'accepted';
-  }
+  ngOnInit(): void {
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.transporterId = userId;
 
-  rejectShipment(id: number) {
-    this.shipments = this.shipments.filter(s => s.id !== id);
-  }
+      // Charger les détails du transporteur
+      this.transporterService.getTransporterById(this.transporterId).subscribe({
+        next: (data) => {
+          this.transporter = data;
+        },
+        error: (err) => {
+          console.error('Failed to load transporter info', err);
+        }
+      });
 
-  trackShipment(id: number) {
-    const shipment = this.shipments.find(s => s.id === id);
-    if (shipment) {
-      alert(`Tracking shipment: ${shipment.title}\nStatus: ${shipment.status}`);
+      this.loadConfirmedShipments();
+      this.loadNotifications();
     }
   }
-  submitQuote(shipment: any) {
-      alert(`Quote of ${shipment.proposedPrice} TND submitted for "${shipment.title}".`);
-      shipment.showPropose = false;
-      // Here you could also call a backend API to save this quote
-    }
+getUnreadCount(): number {
+  return this.notifications?.filter(n => !n.read).length || 0;
+}
+
+  loadConfirmedShipments() {
+    this.shipmentService.getConfirmedShipmentsForTransporter(this.transporterId).subscribe((data) => {
+      this.shipments = data.filter(s => s.status === 'Confirmed');
+    });
+  }
+
+  loadNotifications() {
+    this.notificationService.getNotifications().subscribe((data) => {
+      this.notifications = data.filter(n => n.userId === this.transporterId);
+    });
+  }
+
+  markAsCompleted(shipmentId: number) {
+    this.shipmentService.markShipmentAsCompleted(shipmentId).subscribe(() => {
+      const shipment = this.shipments.find(s => s.id === shipmentId);
+      if (shipment) shipment.status = 'completed';
+    });
+  }
+
+  markNotificationAsRead(notificationId: number) {
+    this.notificationService.markAsRead(notificationId).subscribe(() => {
+      const notif = this.notifications.find(n => n.id === notificationId);
+      if (notif) notif.read = true;
+    });
+  }
+
   setActive(section: string) {
     this.activeSection = section;
   }
@@ -84,6 +94,5 @@ export class TransporterShipmentsComponent implements OnInit {
 
   logout() {
     alert('You have been logged out.');
-    // Tu peux aussi utiliser le router ici pour rediriger vers la page login
   }
 }
