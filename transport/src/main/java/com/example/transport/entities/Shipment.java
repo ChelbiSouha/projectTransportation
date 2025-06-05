@@ -39,12 +39,10 @@ public class Shipment {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
-
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
     @ElementCollection
     @CollectionTable(name = "shipment_images", joinColumns = @JoinColumn(name = "shipment_id"))
     @Column(name = "image_url")
@@ -58,7 +56,6 @@ public class Shipment {
     @JoinColumn(name = "confirmed_transporter_id")
     private Transporter confirmedTransporter;
 
-    // Custom setter with validation
     public void setImages(List<String> images) {
         if (images != null && images.size() > 7) {
             throw new IllegalArgumentException("You can upload a maximum of 7 images.");
@@ -66,7 +63,6 @@ public class Shipment {
         this.images = images;
     }
 
-    // Explicit Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

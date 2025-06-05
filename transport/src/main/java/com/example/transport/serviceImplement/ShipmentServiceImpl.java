@@ -42,7 +42,7 @@ public class ShipmentServiceImpl implements ShipmentServiceInterface {
     @Override
     public Shipment updateShipment(Long id, Shipment shipment) {
         Shipment existing = getShipmentById(id);
-        shipment.setId(existing.getId()); // preserve ID
+        shipment.setId(existing.getId());
         return shipmentRepository.save(shipment);
     }
 
