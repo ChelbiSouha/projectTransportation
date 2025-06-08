@@ -73,7 +73,15 @@
   <!-- Quick action buttons -->
   <section class="d-flex gap-3 mb-6 flex-wrap">
     <button class="btn btn-primary flex-grow-1" (click)="goToShipmentPage()">➕ Add New Shipment</button>
-    <button class="btn btn-outline-primary flex-grow-1" (click)="trackShipment()">📍 Track Shipment</button>
+    <button class="btn btn-outline-primary flex-grow-1" (click)="toggleMap()">📍 Track Shipment</button>
+
+    <!-- Conditionally displayed map -->
+    <div *ngIf="showMap" class="w-100 mt-3">
+      <h2>🗺️ Transporter Location</h2>
+      <div id="map" style="height: 400px; width: 100%;" class="rounded shadow border"></div>
+    </div>
+
+
   </section>
 
   <!-- Shipment cards grid -->
@@ -120,6 +128,7 @@
               >
                 🚛 Voir les transporteurs
               </button>
+
             </div>
           </div>
         </div>
@@ -156,6 +165,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="mt-6 text-center">
+      <button class="btn btn-outline-primary" (click)="goToReviews()">⭐ Go to Reviews</button>
     </div>
   </section>
 </div>

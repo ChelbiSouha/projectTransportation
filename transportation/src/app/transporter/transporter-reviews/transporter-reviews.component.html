@@ -36,6 +36,14 @@
           <i class="fas fa-user mr-2"></i> Profile
         </a>
       </li>
+      <li>
+        <a routerLink="/list"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('shipmentList')}"
+           (click)="setActive('shipmentList')">
+          <i class="fas fa-list mr-2"></i> Shipment List
+        </a>
+      </li>
     </ul>
   </div>
 

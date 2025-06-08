@@ -94,5 +94,6 @@ getUnreadCount(): number {
 
   logout() {
     alert('You have been logged out.');
+    this.authService.logout();
   }
 }

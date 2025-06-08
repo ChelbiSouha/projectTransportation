@@ -1,9 +1,11 @@
 package com.example.transport.controller;
 
 import com.example.transport.entities.Notification;
+import com.example.transport.entities.Shipment;
 import com.example.transport.entities.ShipmentRequest;
 import com.example.transport.repository.NotificationRepository;
 import com.example.transport.services.ShipmentRequestService;
+import com.example.transport.services.ShipmentServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/shipment-requests")
 public class ShipmentRequestController {
+    @Autowired
+    private ShipmentServiceInterface shipmentService;
 
     @Autowired
     private ShipmentRequestService requestService;
@@ -22,24 +26,35 @@ public class ShipmentRequestController {
 
     @PostMapping("/create")
     public ResponseEntity<ShipmentRequest> createRequest(@RequestBody ShipmentRequest request) {
-        if (requestService.exists(request.getShipment().getId(), request.getTransporter().getId())) {
+        Long shipmentId = request.getShipment().getId();
+        Long transporterId = request.getTransporter().getId();
+
+        if (requestService.exists(shipmentId, transporterId)) {
             return ResponseEntity.badRequest().build();
         }
 
+        Shipment shipment = shipmentService.getShipmentById(shipmentId);
+        if (shipment == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        request.setShipment(shipment);
+
         ShipmentRequest createdRequest = requestService.createRequest(request);
 
-        Long clientUserId = createdRequest.getShipment().getUser().getId();
+        Long clientUserId = shipment.getUser().getId();
 
         Notification notif = new Notification(
                 clientUserId,
                 "NEW_SHIPMENT_REQUEST",
-                "A transporter has sent a request for your shipment #" + createdRequest.getShipment().getId()
+                "A transporter has sent a request for your shipment #" + shipmentId
         );
 
         notificationRepository.save(notif);
 
         return ResponseEntity.ok(createdRequest);
     }
+
 
 
     @GetMapping("/shipment/{shipmentId}")

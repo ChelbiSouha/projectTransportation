@@ -4,8 +4,9 @@ import { AuthService } from 'src/app/services/auth-service.service';
 import { Shipment } from 'src/app/models/shipment.model';
 import { TransporterService } from 'src/app/services/transporter.service';
 import { ReviewService } from 'src/app/services/review.service';
-import { WebSocketService } from 'src/app/services/web-socket.service';
-import * as L from 'leaflet';
+import { LocationService } from '../../services/location.service';
+import { HttpClient } from '@angular/common/http';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-transporter-dashboard',
@@ -13,11 +14,6 @@ import * as L from 'leaflet';
   styleUrls: ['./transporter-dashboard.component.css']
 })
 export class TransporterDashboardComponent implements OnInit {
-  latitude: number = 36.8065; // Tunis by default
-  longitude: number = 10.1815;
-  map!: L.Map;
-
-  options: L.MapOptions;
 
   completedShipments: Shipment[] = [];
   transporterId: number | null = null;
@@ -32,25 +28,17 @@ export class TransporterDashboardComponent implements OnInit {
   notifications: any[] = [];
   showNotifications = false;
   showProfile = false;
-  activeSection: string = 'dashboard';  // default active section
+  activeSection: string = 'dashboard';
 
   constructor(
     private transporterService: TransporterService,
     private shipmentService: ShipmentService,
     private reviewService: ReviewService,
-    private webSocketService: WebSocketService,
-    private authService: AuthService
-  ) {
-    this.options = {
-      center: L.latLng(this.latitude, this.longitude),
-      zoom: 12,
-      layers: [
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        })
-      ]
-    };
-  }
+    private authService: AuthService,
+    private locationService: LocationService,
+    private notificationService: NotificationService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     const userId = this.authService.getCurrentUserId();
@@ -60,14 +48,7 @@ export class TransporterDashboardComponent implements OnInit {
       this.transporter = transporter;
       this.transporterId = transporter.id;
       this.loadDashboardData(this.transporterId);
-    });
-
-    this.webSocketService.subscribeToCarLocation((location) => {
-      if (location.carId === this.transporter?.plateNumber) {
-        this.latitude = location.latitude;
-        this.longitude = location.longitude;
-        this.recenterMap();
-      }
+      this.loadNotifications();
     });
   }
 
@@ -92,14 +73,16 @@ export class TransporterDashboardComponent implements OnInit {
     });
   }
 
-  onMapReady(map: L.Map): void {
-    this.map = map;
+  loadNotifications(): void {
+    if (!this.transporterId) return;
+
+    this.notificationService.getNotifications().subscribe(data => {
+      this.notifications = data.filter(n => n.userId === this.transporterId);
+    });
   }
 
-  recenterMap(): void {
-    if (this.map) {
-      this.map.setView([this.latitude, this.longitude], this.map.getZoom());
-    }
+  getUnreadCount(): number {
+    return this.notifications?.filter(n => !n.read).length || 0;
   }
 
   toggleNotifications(): void {
@@ -121,27 +104,26 @@ export class TransporterDashboardComponent implements OnInit {
   }
 
   logout(): void {
+    alert('You have been logged out.');
     this.authService.logout();
   }
 
-  updateLocation(): void {
-    const payload = {
-      latitude: this.latitude,
-      longitude: this.longitude
-    };
+  sendLocation() {
+    this.locationService.getCurrentLocation()
+      .then(position => {
+        const payload = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date().toISOString()
+        };
 
-    this.transporterService.updateLocation(payload).subscribe({
-      next: () => alert('Location updated successfully.'),
-      error: err => {
-        console.error('Error updating location:', err);
-        alert('Failed to update location.');
-      }
-    });
-  }
-
-  onMapClick(event: L.LeafletMouseEvent): void {
-    this.latitude = event.latlng.lat;
-    this.longitude = event.latlng.lng;
-    this.recenterMap();
+        this.http.post('/updateLocation', payload).subscribe({
+          next: res => console.log('✅ Location sent!', res),
+          error: err => console.error('❌ Error sending location', err)
+        });
+      })
+      .catch(err => {
+        console.error('❌ Unable to get location', err);
+      });
   }
 }

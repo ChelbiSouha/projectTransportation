@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TransporterService } from 'src/app/services/transporter.service';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { Transporter } from 'src/app/models/transporter.model';
+import { NotificationService } from '../../services/notification.service';  // <-- added import
 
 @Component({
   selector: 'app-transporter-profile',
@@ -11,10 +12,7 @@ import { Transporter } from 'src/app/models/transporter.model';
 export class TransporterProfileComponent implements OnInit {
 
   transporter!: Transporter;
-  notifications = [
-    { message: 'New shipment assigned.' },
-    { message: 'Profile updated successfully.' }
-  ];
+  notifications: any[] = [];
   showNotifications = false;
   showProfile = false;
   activeSection = 'profile';
@@ -22,7 +20,8 @@ export class TransporterProfileComponent implements OnInit {
 
   constructor(
     private transporterService: TransporterService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService  // <-- injected here
   ) {}
 
   ngOnInit(): void {
@@ -37,10 +36,18 @@ export class TransporterProfileComponent implements OnInit {
         this.vehicleInfo.type = transporter.vehicleType || '';
         this.vehicleInfo.plate = transporter.plateNumber || '';
         if (!this.transporter.phone) {
-          this.transporter.phone = ''; // Initialiser si absent
+          this.transporter.phone = ''; // Initialize if missing
         }
+        this.loadNotifications();
       },
       error: (err) => console.error('Error loading transporter profile', err)
+    });
+  }
+
+  loadNotifications(): void {
+    if (!this.transporter?.id) return;
+    this.notificationService.getNotifications().subscribe(data => {
+      this.notifications = data.filter(n => n.userId === this.transporter.id);
     });
   }
 
@@ -68,6 +75,16 @@ export class TransporterProfileComponent implements OnInit {
     });
   }
 
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showProfile = false;
+  }
+
+  toggleProfile(): void {
+    this.showProfile = !this.showProfile;
+    this.showNotifications = false;
+  }
+
   isActive(section: string): boolean {
     return this.activeSection === section;
   }
@@ -76,17 +93,9 @@ export class TransporterProfileComponent implements OnInit {
     this.activeSection = section;
   }
 
-  toggleNotifications(): void {
-    this.showNotifications = !this.showNotifications;
-  }
-
-  toggleProfile(): void {
-    this.showProfile = !this.showProfile;
-  }
-
   logout(): void {
-    localStorage.clear();
-    window.location.href = '/login';
+    alert('You have been logged out.');
+    this.authService.logout();
   }
 
   onFileSelect(event: any): void {

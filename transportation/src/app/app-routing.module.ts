@@ -26,7 +26,7 @@ import { ShipmentStep3Component } from './pages/shipment-step3/shipment-step3.co
 import { ShipmentListComponent } from './pages/shipment-list/shipment-list.component';
 import { UserReviewsComponent } from './pages/user-reviews/user-reviews.component';
 import { RegisterAdminComponent } from './admin/register-admin/register-admin.component';
-import { ShipmentTrackingComponent } from './pages/shipment-tracking/shipment-tracking.component';
+import { TrackingComponent } from './tracking/tracking.component';
 
 const routes: Routes = [
   {
@@ -40,15 +40,7 @@ const routes: Routes = [
       { path: 'step1',component: ShipmentStep1Component},
       { path: 'step2',component: ShipmentStep2Component},
       { path: 'step3',component: ShipmentStep3Component},
-      { path: 'list',component: ShipmentListComponent},
       { path: 'review',component: UserReviewsComponent },
-      {
-        path: 'track-shipment',
-        component: ShipmentTrackingComponent
-      }
-
-
-
 
     ]
   },
@@ -74,10 +66,11 @@ const routes: Routes = [
   { path: 'transporter-shipments', component: TransporterShipmentsComponent },
   { path: 'transporter-profile', component: TransporterProfileComponent },
   { path: 'transporter-reviews', component: TransporterReviewsComponent },
+  { path: 'list',component: ShipmentListComponent},
+  { path: 'position' , component: TrackingComponent },
 
 
-
-  { path: '**', redirectTo: '/home' }
+  { path: '**', redirectTo: '/home/acceuil' }
 
 
 ];

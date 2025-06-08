@@ -35,6 +35,14 @@
           <i class="fas fa-user mr-2"></i> Profile
         </a>
       </li>
+      <li>
+        <a routerLink="/list"
+           class="block px-3 py-2 rounded transition duration-200"
+           [ngClass]="{'bg-indigo-500': isActive('shipmentList')}"
+           (click)="setActive('shipmentList')">
+          <i class="fas fa-list mr-2"></i> Shipment List
+        </a>
+      </li>
     </ul>
   </div>
 
@@ -63,7 +71,11 @@
             </div>
           </div>
         </div>
-
+        <div class="relative">
+          <button (click)="sendLocation()" class="text-white hover:text-yellow-300 transition" title="Send My Location">
+            <i class="fas fa-location-arrow text-3xl"></i>
+          </button>
+        </div>
         <!-- Profile -->
         <div class="relative">
           <button (click)="toggleProfile()" class="text-white">
@@ -106,7 +118,7 @@
     </div>
 
     <!-- Feedback -->
-    <div class="bg-white p-4 rounded-xl shadow mt-6 max-w-3xl">
+    <div class="bg-white p-4 rounded-xl shadow mt-6 class=w-full">
       <h3 class="text-xl font-semibold mb-4">📝 Latest Feedback</h3>
       <div *ngIf="latestFeedback">
         <p><strong>{{ latestFeedback.userName }}:</strong> "{{ latestFeedback.comment }}"</p>
@@ -116,19 +128,5 @@
         No feedback yet.
       </div>
     </div>
-
-    <!-- Update Location -->
-    <div class="p-4 border rounded shadow-md w-full max-w-md mx-auto mt-6">
-      <h3 class="text-xl font-semibold mb-2">Update Your Location</h3>
-      <div id="map" style="height: 300px;" leaflet
-           [leafletOptions]="options"
-           (leafletMapReady)="onMapReady($event)"
-           (leafletClick)="onMapClick($event)">
-      </div>
-      <button (click)="updateLocation()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-        Save Location
-      </button>
-    </div>
-
   </div>
 </div>

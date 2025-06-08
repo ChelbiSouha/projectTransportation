@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth-service.service';
 import { Shipment } from '../../models/shipment.model';
 import { ShipmentRequest } from '../../models/shipment-request.model';
 import { TransporterService } from '../../services/transporter.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-shipment-list',
@@ -22,12 +23,18 @@ export class ShipmentListComponent implements OnInit {
   proposalError: string | null = null;
   proposalSuccess: boolean = false;
   requestedShipmentIds: Set<number> = new Set();
+  transporter: any;
+  notifications: any[] = [];
+  showNotifications = false;
+  showProfile = false;
+  activeSection: string = 'shipmentList';
 
   constructor(
     private shipmentService: ShipmentService,
     private shipmentRequestService: ShipmentRequestService,
     private authService: AuthService,
-    private transporterService: TransporterService
+    private transporterService: TransporterService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -36,8 +43,10 @@ export class ShipmentListComponent implements OnInit {
         this.transporterService.getTransporterById(user.id).subscribe({
           next: (transporter) => {
             this.transporterId = transporter.id;
+            this.transporter = transporter;
             this.fetchShipments();
             this.fetchSentRequests();
+            this.loadNotifications();
           },
           error: () => {
             console.error("L'utilisateur connecté n'est pas un transporteur.");
@@ -61,6 +70,16 @@ export class ShipmentListComponent implements OnInit {
       }
     );
   }
+  setActive(section: string): void {
+      this.activeSection = section;
+    }
+
+    isActive(section: string): boolean {
+      return this.activeSection === section;
+    }
+  get pendingShipments(): Shipment[] {
+    return this.shipments.filter(s => s.status?.toLowerCase() === 'pending');
+  }
 
   fetchSentRequests() {
     if (this.transporterId !== null) {
@@ -73,6 +92,9 @@ export class ShipmentListComponent implements OnInit {
         }
       );
     }
+  }
+getUnreadCount(): number {
+    return this.notifications?.filter(n => !n.read).length || 0;
   }
 
   openModal(shipment: Shipment) {
@@ -118,7 +140,12 @@ export class ShipmentListComponent implements OnInit {
         this.closeProposalModal();
       },
       (error) => {
-        this.proposalError = 'You have already submitted a proposal or an error occurred.';
+        console.error('Proposal error:', error);
+        if (error.status === 409) {
+          this.proposalError = 'You have already submitted a proposal for this shipment.';
+        } else {
+          this.proposalError = `Unexpected error: ${error.message || error.statusText}`;
+        }
         this.proposalSuccess = false;
       }
     );
@@ -151,5 +178,30 @@ export class ShipmentListComponent implements OnInit {
 
   hasAlreadyRequested(shipmentId: number): boolean {
     return this.requestedShipmentIds.has(shipmentId);
+  }
+  loadNotifications(): void {
+    if (!this.transporterId) return;
+    this.notificationService.getNotifications().subscribe(data => {
+      this.notifications = data.filter(n => n.userId === this.transporterId);
+    });
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+  }
+
+  logout(): void {
+    alert('You have been logged out.');
+    this.authService.logout();
+  }
+toggleProfile(): void {
+    this.showProfile = !this.showProfile;
+    this.showNotifications = false;
+  }
+markNotificationAsRead(notificationId: number) {
+    this.notificationService.markAsRead(notificationId).subscribe(() => {
+      const notif = this.notifications.find(n => n.id === notificationId);
+      if (notif) notif.read = true;
+    });
   }
 }

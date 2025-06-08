@@ -3,6 +3,8 @@ import { ReviewService } from 'src/app/services/review.service';
 import { TransporterService } from 'src/app/services/transporter.service';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { Review } from 'src/app/models/review.model';
+import { NotificationService } from '../../services/notification.service';
+import { Notification } from '../../models/notification.model';
 import { Transporter } from 'src/app/models/transporter.model';
 
 @Component({
@@ -14,40 +16,38 @@ export class TransporterReviewsComponent implements OnInit {
   transporter!: Transporter;
   reviews: Review[] = [];
   overallRating: number = 0;
+  notifications: Notification[] = [];
 
-  notifications = [
-    { message: 'New shipment assigned.' },
-    { message: 'Profile updated successfully.' }
-  ];
   showNotifications = false;
   showProfile = false;
-  activeSection = 'profile';
+  activeSection = 'reviews';
+
+  transporterId: number | null = null;
 
   constructor(
     private reviewService: ReviewService,
     private transporterService: TransporterService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService  // Inject notification service
   ) {}
 
- transporterId: number | null = null;
+  ngOnInit(): void {
+    this.transporterId = this.authService.getCurrentUserId();
 
- ngOnInit(): void {
-   this.transporterId = this.authService.getCurrentUserId();
+    if (this.transporterId === null) {
+      console.error('Transporter ID not found');
+      return;
+    }
 
-   if (this.transporterId === null) {
-     console.error('Transporter ID not found');
-     return;
-   }
-
-   this.transporterService.getTransporterById(this.transporterId).subscribe({
-     next: (transporter) => {
-       this.transporter = transporter;
-       this.loadReviews();
-     },
-     error: (error) => console.error('Error loading transporter:', error)
-   });
- }
-
+    this.transporterService.getTransporterById(this.transporterId).subscribe({
+      next: (transporter) => {
+        this.transporter = transporter;
+        this.loadReviews();
+        this.loadNotifications();  // Load notifications here as well
+      },
+      error: (error) => console.error('Error loading transporter:', error)
+    });
+  }
 
   loadReviews(): void {
     if (this.transporterId === null) {
@@ -66,7 +66,6 @@ export class TransporterReviewsComponent implements OnInit {
     });
   }
 
-
   calculateOverallRating(): void {
     if (this.reviews.length === 0) {
       this.overallRating = 0;
@@ -76,17 +75,25 @@ export class TransporterReviewsComponent implements OnInit {
     this.overallRating = parseFloat((total / this.reviews.length).toFixed(1));
   }
 
-  logout(): void {
-    localStorage.clear();
-    window.location.href = '/login';
+  // Notifications methods
+
+  loadNotifications(): void {
+    if (this.transporterId === null) return;
+
+    this.notificationService.getNotifications().subscribe(data => {
+      this.notifications = data.filter(n => n.userId === this.transporterId);
+    });
   }
 
-  isActive(section: string): boolean {
-    return this.activeSection === section;
+  getUnreadCount(): number {
+    return this.notifications?.filter(n => !n.read).length || 0;
   }
 
-  setActive(section: string): void {
-    this.activeSection = section;
+  markNotificationAsRead(notificationId: number): void {
+    this.notificationService.markAsRead(notificationId).subscribe(() => {
+      const notif = this.notifications.find(n => n.id === notificationId);
+      if (notif) notif.read = true;
+    });
   }
 
   toggleNotifications(): void {
@@ -95,5 +102,18 @@ export class TransporterReviewsComponent implements OnInit {
 
   toggleProfile(): void {
     this.showProfile = !this.showProfile;
+  }
+
+  // Logout similar to TransporterShipmentsComponent:
+  logout(): void {
+    alert('You have been logged out.');
+this.authService.logout();  }
+
+  isActive(section: string): boolean {
+    return this.activeSection === section;
+  }
+
+  setActive(section: string): void {
+    this.activeSection = section;
   }
 }

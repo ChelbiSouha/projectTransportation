@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ShipmentService } from 'src/app/services/shipment.service';
 import { Shipment } from 'src/app/models/shipment.model';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { Notification } from 'src/app/models/notification.model';
+import { LocationService } from '../../services/location.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-users',
@@ -25,7 +27,8 @@ export class UsersComponent implements OnInit {
     private router: Router,
     private shipmentService: ShipmentService,
     private authService: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +39,12 @@ export class UsersComponent implements OnInit {
       this.loadUserNotifications(userId);
     }
   }
+showMap = false;
+mapInitialized = false;
 
+   ngAfterViewInit(): void {
+      this.loadMap();
+    }
   loadUserShipments(userId: number): void {
     this.shipmentService.getShipmentsByUserId(userId).subscribe({
       next: (data: Shipment[]) => {
@@ -102,8 +110,39 @@ export class UsersComponent implements OnInit {
     this.router.navigate(['/home/step1']);
   }
 
-  trackShipment(): void {
-    // Tu peux rediriger vers une page de suivi plus tard
-    console.log('Track Shipment clicked');
+  toggleMap(): void {
+    this.showMap = !this.showMap;
+    if (this.showMap && !this.mapInitialized) {
+      setTimeout(() => {
+        this.loadMap();
+        this.mapInitialized = true;
+      }, 0); // Wait for DOM to render
+    }
   }
+
+loadMap(): void {
+    this.locationService.getCurrentLocation()
+      .then(position => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        const map = L.map('map').setView([lat, lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const marker = L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(`You are here: [${lat.toFixed(5)}, ${lng.toFixed(5)}]`)
+          .openPopup();
+      })
+      .catch(err => {
+        console.error('Could not load map:', err);
+      });
+  }
+goToReviews() {
+  this.router.navigate(['/home/review']);
+}
+
 }

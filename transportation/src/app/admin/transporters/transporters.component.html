@@ -34,10 +34,10 @@
         <p><strong>Phone:</strong> {{ selectedTransporter.phone }}</p>
         <p><strong>Vehicle Type:</strong> {{ selectedTransporter.vehicleType }}</p>
         <p><strong>License Image:</strong></p>
-        <img *ngIf="selectedTransporter?.licenseImage" [src]="selectedTransporter.licenseImage" alt="License Image" class="w-full max-h-40 object-contain border rounded"/>
+        <img *ngIf="selectedTransporter?.licenseImage" [src]="'data:image/png;base64,'+ selectedTransporter.licenseImage" alt="License Image" class="w-full max-h-40 object-contain border rounded"/>
 
         <p><strong>Vehicle Registration:</strong></p>
-        <img *ngIf="selectedTransporter?.vehicleRegistrationImage" [src]="selectedTransporter.vehicleRegistrationImage" alt="Vehicle Registration" class="w-full max-h-40 object-contain border rounded"/>
+        <img *ngIf="selectedTransporter?.vehicleRegistrationImage" [src]="'data:image/png;base64,'+ selectedTransporter.vehicleRegistrationImage" alt="Vehicle Registration" class="w-full max-h-40 object-contain border rounded"/>
       </div>
     </div>
   </div>
